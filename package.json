@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "mongoose": "^9.7.0"
+  }
+}
