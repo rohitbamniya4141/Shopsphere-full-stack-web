@@ -8,7 +8,7 @@ const ownerSchema = mongoose.Schema({
       type: Array,
       default: []
     },
-    phone: number,
+    phone: Number,
     gstin: String,
     picture: String
   });
