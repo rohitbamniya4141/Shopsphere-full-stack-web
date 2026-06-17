@@ -38,4 +38,8 @@ app.get('/', (req, res) => {
    });
 });
 
+const indexRouter = require('./routes/index');
+
+app.use('/', indexRouter);
+
 app.listen(3000);
