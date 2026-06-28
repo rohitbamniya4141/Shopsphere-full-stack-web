@@ -1,0 +1,24 @@
+<%- include('./partials/header') %>
+
+<div class="max-w-7xl mx-auto px-6 py-10">
+    <h1 class="text-3xl font-bold">
+        My Orders
+    </h1>
+
+    <% user.orders.forEach(function(order){ %>
+
+        <div class="border rounded-lg p-5 mt-5">
+            <h2>Order ID: <%= order._id %></h2>
+
+            <p>Total Amount: ₹ <%= order.totalAmount %></p>
+
+            <p>Status: <%= order.status %></p>
+
+            <p>Date: <%= order.createdAt.toDateString() %></p>
+        </div>
+
+    <% }) %>
+
+</div>
+
+<%- include('./partials/footer') %>

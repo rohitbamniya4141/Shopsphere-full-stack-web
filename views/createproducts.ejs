@@ -1,55 +1,250 @@
 <%- include('./partials/header') %>
 
-    <% if(success.length>0){ %>
-        <div class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-blue-500">
-            <span class="inline-block mt-1 mb-1 text-white">
-                <%= success %>
-            </span>
+    <!-- Flash Success -->
+    <% if(success.length > 0){ %>
+        <div class="flash-message fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl bg-emerald-500/95 backdrop-blur-sm shadow-lg shadow-emerald-500/20">
+            <div class="flex items-center gap-2">
+                <i class="ri-check-line text-white text-lg"></i>
+                <span class="text-white text-sm font-medium"><%= success %></span>
+            </div>
         </div>
-        <% } %>
+    <% } %>
 
-            <div class="min-h-screen flex flex-col">
-                <div class="container px-10 py-20 flex flex-grow">
-                    <div class="w-[25%] flex h-screen flex-col items-start">
-                        <div class="flex flex-col">
-                            <a class="block w-fit mb-2" href="">All Products</a>
-                            <a class="block w-fit mb-2" href="">Create new product</a>
+    <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-10">
+        <div class="flex gap-10">
+            <!-- Admin Sidebar -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-24">
+                    <div class="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
+                        <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center">
+                            <i class="ri-settings-3-line text-brand-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-dark-900">Admin Panel</h3>
+                            <p class="text-xs text-dark-400">Manage your store</p>
                         </div>
                     </div>
-                    <main class="w-3/4 bg-white p-8 shadow ml-4">
-                        <h2 class="text-xl font-bold mb-4">Create New Product</h2>
-                        <form autocomplete="off" action="/products/create" method="post" enctype="multipart/form-data">
-                            <div class="mb-6">
-                                <h3 class="text-lg font-semibold mb-2">Product Details</h3>
-                                <div class="mb-4">
-                                    <label class="block mb-2 font-medium">Product Image</label>
-                                    <input name="image" type="file" class="py-2 px-4 rounded" value="Select File">
+
+                    <div class="space-y-1">
+                        <a href="/owners/admin" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-50 text-brand-700 text-sm font-medium">
+                            <i class="ri-add-circle-line"></i> Create Product
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-dark-500 hover:bg-gray-50 text-sm transition-colors">
+                            <i class="ri-list-check-2"></i> All Products
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-dark-500 hover:bg-gray-50 text-sm transition-colors">
+                            <i class="ri-bar-chart-box-line"></i> Analytics
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 animate-fade-in-up">
+                <!-- Page Header -->
+                <div class="mb-8">
+                    <p class="text-brand-600 text-sm font-semibold uppercase tracking-wider mb-2">Admin</p>
+                    <h1 class="text-2xl md:text-3xl font-serif font-bold text-dark-900">Create New Product</h1>
+                    <p class="text-dark-400 text-sm mt-1">Add a new bag to your store catalog</p>
+                </div>
+                                <!-- Dashboard Stats -->
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+
+                        <p class="text-gray-500 text-sm">
+                            Total Products
+                        </p>
+
+                        <h1 class="text-3xl font-bold mt-2">
+                            <%= totalProducts %>
+                        </h1>
+
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+
+                        <p class="text-gray-500 text-sm">
+                            Total Orders
+                        </p>
+
+                        <h1 class="text-3xl font-bold mt-2">
+                            <%= totalOrders %>
+                        </h1>
+
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+
+                        <p class="text-gray-500 text-sm">
+                            Revenue
+                        </p>
+
+                        <h1 class="text-3xl font-bold mt-2 text-green-600">
+                            ₹ <%= revenue %>
+                        </h1>
+
+                    </div>
+
+                </div>
+
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+                    <form autocomplete="off" action="/products/create" method="post" enctype="multipart/form-data">
+
+                        <!-- Product Image -->
+                        <div class="mb-8">
+                            <label class="text-xs font-bold uppercase tracking-wider text-dark-400 mb-3 block">Product Image</label>
+                            <div class="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-brand-400 transition-colors cursor-pointer">
+                                <div class="w-14 h-14 rounded-full bg-brand-50 flex items-center justify-center mx-auto mb-4">
+                                    <i class="ri-image-add-line text-2xl text-brand-500"></i>
                                 </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <input name="name" type="text" placeholder="Product Name"
-                                        class="border p-2 rounded w-full">
-                                    <input name="price" type="text" placeholder="Product Price"
-                                        class="border p-2 rounded w-full">
-                                    <input name="discount" type="text" placeholder="Discount Price"
-                                        class="border p-2 rounded w-full">
+                                <input name="image" type="file" class="text-sm text-dark-500 file:mr-4 file:py-2 file:px-5 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 file:cursor-pointer cursor-pointer" accept="image/*">
+                                <p class="text-xs text-dark-400 mt-2">PNG, JPG, WEBP up to 5MB</p>
+                            </div>
+                        </div>
+
+                        <!-- Product Details -->
+                        <div class="mb-8">
+                            <h3 class="text-sm font-bold text-dark-800 mb-4 flex items-center gap-2">
+                                <i class="ri-information-line text-brand-500"></i> Product Details
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="md:col-span-2">
+                                    <label class="text-xs font-medium text-dark-500 uppercase tracking-wider mb-1.5 block">Product Name</label>
+                                    <input name="name" type="text" placeholder="e.g. Classic Leather Tote"
+                                        class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50 text-dark-900 placeholder-dark-300 text-sm">
                                 </div>
+                                <div>
+                                    <label class="text-xs font-medium text-dark-500 uppercase tracking-wider mb-1.5 block">Price (₹)</label>
+                                    <input name="price" type="text" placeholder="e.g. 2499"
+                                        class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50 text-dark-900 placeholder-dark-300 text-sm">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-medium text-dark-500 uppercase tracking-wider mb-1.5 block">Discount (₹)</label>
+                                    <input name="discount" type="text" placeholder="e.g. 200"
+                                        class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50 text-dark-900 placeholder-dark-300 text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel Customization -->
+                        <div class="mb-8">
+                            <h3 class="text-sm font-bold text-dark-800 mb-4 flex items-center gap-2">
+                                <i class="ri-palette-line text-brand-500"></i> Display Colors
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="text-xs font-medium text-dark-500 uppercase tracking-wider mb-1.5 block">Background Color</label>
+                                    <input name="bgcolor" type="text" placeholder="e.g. #f5f0eb"
+                                        class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50 text-dark-900 placeholder-dark-300 text-sm">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-medium text-dark-500 uppercase tracking-wider mb-1.5 block">Panel Color</label>
+                                    <input name="panelcolor" type="text" placeholder="e.g. #2d2d2d"
+                                        class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50 text-dark-900 placeholder-dark-300 text-sm">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-medium text-dark-500 uppercase tracking-wider mb-1.5 block">Text Color</label>
+                                    <input name="textcolor" type="text" placeholder="e.g. #ffffff"
+                                        class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50 text-dark-900 placeholder-dark-300 text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="flex items-center gap-4">
+                            <button type="submit" class="btn-primary text-white font-semibold px-8 py-3.5 rounded-xl text-sm tracking-wide inline-flex items-center gap-2">
+                                <i class="ri-add-line"></i>
+                                Create Product
+                            </button>
+                            <a href="/shop" class="px-6 py-3.5 rounded-xl border border-gray-200 text-dark-600 text-sm font-medium hover:bg-gray-50 transition-colors">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                                <!-- Product List -->
+
+                <div class="mt-12">
+
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-dark-900">
+                                All Products
+                            </h2>
+                            <p class="text-dark-400 text-sm">
+                                Total Products : <%= products.length %>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+
+                        <% products.forEach(function(product){ %>
+
+                            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex justify-between items-center">
+
+                                <div class="flex items-center gap-5">
+
+                                    <div class="w-20 h-20 rounded-xl flex items-center justify-center overflow-hidden"
+                                        style="background:<%= product.bgcolor %>">
+
+                                        <img
+                                            class="h-16 object-contain"
+                                            src="data:image/jpeg;base64,<%= product.image.toString('base64') %>">
+
+                                    </div>
+
+                                    <div>
+
+                                        <h3 class="font-bold text-lg">
+                                            <%= product.name %>
+                                        </h3>
+
+                                        <p class="text-gray-500">
+                                            ₹ <%= product.price %>
+                                        </p>
+
+                                        <% if(product.discount>0){ %>
+
+                                            <p class="text-green-600 text-sm">
+                                                Discount ₹ <%= product.discount %>
+                                            </p>
+
+                                        <% } %>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="flex gap-3">
+
+                                    <a href="/owners/edit/<%= product._id %>"
+                                        class="px-4 py-2 rounded-lg bg-blue-500 text-white">
+
+                                        Edit
+
+                                    </a>
+
+                                    <a href="/owners/delete/<%= product._id %>"
+                                        class="px-4 py-2 rounded-lg bg-red-500 text-white">
+
+                                        Delete
+
+                                    </a>
+
+                                </div>
+
                             </div>
 
-                            <div>
-                                <h3 class="text-lg font-semibold mb-2">Panel Details</h3>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <input name="bgcolor" type="text" placeholder="Background Color"
-                                        class="border p-2 rounded w-full">
-                                    <input name="panelcolor" type="text" placeholder="Panel Color"
-                                        class="border p-2 rounded w-full">
-                                    <input name="textcolor" type="text" placeholder="Text Color"
-                                        class="border p-2 rounded w-full">
-                                </div>
-                            </div>
-                            <input class="px-5 py-2 rounded mt-3 bg-blue-500 text-white" type="submit"
-                                value="Create New Product">
-                        </form>
-                    </main>
+                        <% }) %>
+
+                    </div>
+
                 </div>
-            </div>
-            <%- include('./partials/footer') %>
+            </main>
+        </div>
+    </div>
+
+<%- include('./partials/footer') %>

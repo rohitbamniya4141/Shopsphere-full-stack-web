@@ -4,58 +4,68 @@ const jwt = require('jsonwebtoken');
 
 const{generateToken} = require('../utils/generateToken');
 
-module.exports.registerUser =async function(req, res){
+module.exports.registerUser = async function(req, res){
     try{
         const {fullname, email, password} = req.body;
-        let user = await userModel.findOne({email:email});
-        if(user){
-            return res.status(400).send("User already exists with this email, Please login");
+
+        if(!fullname || !email || !password){
+            req.flash('error', 'All fields are required');
+            return res.redirect('/');
         }
-        bcrypt.genSalt(10, function(err, salt) {
-            if (err) {
-                console.error('Error generating salt:', err);
-                return res.status(500).send('Internal server error');
-            }
-            bcrypt.hash(password, salt, async function(err, hash) {
-                if (err) {
-                    console.error('Error hashing password:', err);
-                    return res.status(500).send('Internal server error');
-                }
-                let createdUser = await userModel.create({
-                    fullname,
-                    email,
-                    password: hash,
-                    });
+
+        let user = await userModel.findOne({email: email});
+        if(user){
+            req.flash('error', 'User already exists with this email, Please login');
+            return res.redirect('/');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+
+        let createdUser = await userModel.create({
+            fullname,
+            email,
+            password: hash,
+        });
                     
-                     let token = generateToken(createdUser);
-                     res.cookie("token", token);
-                     res.send("user created successfully");
-
-               });
-            });
-
-           
+        let token = generateToken(createdUser);
+        res.cookie("token", token);
+        res.redirect("/shop");
     }catch(err){
         console.log(err.message);
+        req.flash('error', 'Something went wrong, please try again');
+        res.redirect('/');
     }
 } 
 
 module.exports.loginUser = async function(req, res){
-    let {email, password} = req.body;
+    try{
+        let {email, password} = req.body;
 
-    let user = await userModel.findOne({email: email});
-    if(!user){
-        return res.status(400).send("Email or password is incorrect");
-    }
+        if(!email || !password){
+            req.flash('error', 'Email and password are required');
+            return res.redirect('/');
+        }
 
-    bcrypt.compare(password, user.password, function(err, result){
+        let user = await userModel.findOne({email: email});
+        if(!user){
+            req.flash('error', 'Email or password is incorrect');
+            return res.redirect('/');
+        }
+
+        let result = await bcrypt.compare(password, user.password);
         if(result){
             let token = generateToken(user);
             res.cookie("token", token);
-            res.send("You can login");
+            res.redirect("/shop");
         }
         else{
-            res.send("Email or password is incorrect");
+            req.flash('error', 'Email or password is incorrect');
+            res.redirect('/');
         }
-    })
+    }catch(err){
+        console.log(err.message);
+        req.flash('error', 'Something went wrong, please try again');
+        res.redirect('/');
+    }
 }

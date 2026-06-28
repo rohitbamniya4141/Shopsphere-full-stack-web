@@ -1,46 +1,163 @@
 <%- include('./partials/header') %>
 
-    <% if(error.length>0){ %>
-        <div class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-red-500">
-            <span class="inline-block mt-1 mb-1 text-white">
-                <%= error %>
-            </span>
+    <!-- Flash Error -->
+    <% if(error.length > 0){ %>
+        <div class="flash-message fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl bg-red-500/95 backdrop-blur-sm shadow-lg shadow-red-500/20">
+            <div class="flex items-center gap-2">
+                <i class="ri-error-warning-line text-white text-lg"></i>
+                <span class="text-white text-sm font-medium"><%= error %></span>
+            </div>
         </div>
-        <% } %>
-            <div class="w-full h-screen flex px-20">
-                <div class="w-1/2 flex items-center justify-center h-screen">
-                    <div class="w-full px-32">
-                        <h3 class="text-4xl">welcome to <span class="text-blue-400 font-semibold">Scatch</span></h3>
-                        <h4 class="text-2xl mb-5">create your account</h4>
-                        <form autocomplete="off" action="/users/register" method="post">
+    <% } %>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-[92vh] flex items-center overflow-hidden">
+        <!-- Background Gradient -->
+        <div class="absolute inset-0 bg-gradient-to-br from-dark-950 via-dark-900 to-dark-800"></div>
+        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 20% 50%, rgba(212, 136, 46, 0.3), transparent 50%), radial-gradient(circle at 80% 20%, rgba(212, 136, 46, 0.2), transparent 50%);"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-20 w-full">
+            <div class="flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
+
+                <!-- Left: Hero Content + Register -->
+                <div class="w-full lg:w-1/2 animate-fade-in-up">
+                    <!-- Badge -->
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/20 mb-8">
+                        <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+                        <span class="text-brand-400 text-xs font-semibold uppercase tracking-wider">Premium Collection 2026</span>
+                    </div>
+
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white leading-tight mb-6">
+                        Discover Your <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-300">Perfect Bag</span>
+                    </h1>
+                    <p class="text-dark-300 text-lg leading-relaxed mb-10 max-w-md">
+                        Handcrafted luxury bags that define your style. From everyday essentials to statement pieces.
+                    </p>
+
+                    <!-- Register Form -->
+                    <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8">
+                        <h3 class="text-white text-lg font-semibold mb-1">Create your account</h3>
+                        <p class="text-dark-400 text-sm mb-6">Join ShopSphere to start shopping</p>
+
+                        <form autocomplete="off" action="/users/register" method="post" class="space-y-4">
                             <input
-                                class="bg-zinc-100 block w-full px-3 py-2 border-[1px] rounded-md mb-3 border-zinc-200"
+                                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-dark-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all text-sm"
                                 type="text" placeholder="Full Name" name="fullname">
                             <input
-                                class="bg-zinc-100 block w-full px-3 py-2 border-[1px] rounded-md mb-3 border-zinc-200"
-                                type="email" placeholder="Email" name="email">
+                                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-dark-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all text-sm"
+                                type="email" placeholder="Email Address" name="email">
                             <input
-                                class="bg-zinc-100 block w-full px-3 py-2 border-[1px] rounded-md mb-3 border-zinc-200"
+                                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-dark-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all text-sm"
                                 type="password" placeholder="Password" name="password">
-                            <input class="px-5 rounded-full py-3 mt-2 bg-blue-500 text-white" type="submit"
-                                value="Create My Account">
+                            <button type="submit" class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm tracking-wide">
+                                Create Account
+                                <i class="ri-arrow-right-line ml-1"></i>
+                            </button>
                         </form>
                     </div>
                 </div>
-                <div class="w-1/2 flex items-center justify-center h-screen">
-                    <div class="w-full px-32">
-                        <h4 class="text-2xl capitalize mb-5">login your account</h4>
-                        <form autocomplete="off" action="/users/login" method="post">
-                            <input
-                                class="block bg-zinc-100 w-full px-3 py-2 border-[1px] rounded-md mb-3 border-zinc-200"
-                                type="email" placeholder="Email" name="email">
-                            <input
-                                class="block bg-zinc-100 w-full px-3 py-2 border-[1px] rounded-md mb-3 border-zinc-200"
-                                type="password" placeholder="Password" name="password">
-                            <input class="px-5 block rounded-full py-3 mt-2 bg-blue-500 text-white" type="submit"
-                                value="Login">
+
+                <!-- Right: Login Form -->
+                <div class="w-full lg:w-1/2 animate-fade-in-up stagger-2">
+                    <!-- Stats -->
+                    <div class="flex gap-8 mb-12">
+                        <div class="stagger-1 animate-fade-in-up">
+                            <h3 class="text-3xl font-bold text-white">500+</h3>
+                            <p class="text-dark-400 text-sm mt-1">Premium Bags</p>
+                        </div>
+                        <div class="stagger-2 animate-fade-in-up">
+                            <h3 class="text-3xl font-bold text-white">50+</h3>
+                            <p class="text-dark-400 text-sm mt-1">Brands</p>
+                        </div>
+                        <div class="stagger-3 animate-fade-in-up">
+                            <h3 class="text-3xl font-bold text-white">10K+</h3>
+                            <p class="text-dark-400 text-sm mt-1">Happy Customers</p>
+                        </div>
+                    </div>
+
+                    <!-- Login Form -->
+                    <div class="bg-white rounded-2xl shadow-xl shadow-black/5 p-8 border border-gray-100">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center">
+                                <i class="ri-login-box-line text-brand-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-dark-900">Welcome back</h3>
+                                <p class="text-dark-400 text-sm">Login to your account</p>
+                            </div>
+                        </div>
+
+                        <form autocomplete="off" action="/users/login" method="post" class="space-y-4">
+                            <div>
+                                <label class="text-xs font-medium text-dark-500 uppercase tracking-wider mb-1.5 block">Email</label>
+                                <input
+                                    class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50 text-dark-900 placeholder-dark-300 text-sm"
+                                    type="email" placeholder="you@example.com" name="email">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-dark-500 uppercase tracking-wider mb-1.5 block">Password</label>
+                                <input
+                                    class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50 text-dark-900 placeholder-dark-300 text-sm"
+                                    type="password" placeholder="••••••••" name="password">
+                            </div>
+                            <button type="submit" class="w-full btn-dark text-white font-semibold py-3.5 rounded-xl text-sm tracking-wide">
+                                Login to Shop
+                                <i class="ri-arrow-right-line ml-1"></i>
+                            </button>
                         </form>
+
+                        <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+                            <p class="text-dark-400 text-sm">New here? Create an account on the left →</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <%- include('./partials/footer') %>
+        </div>
+    </section>
+
+    <!-- Features Strip -->
+    <section class="bg-white border-y border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-truck-line text-brand-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-dark-900">Free Shipping</h4>
+                        <p class="text-xs text-dark-400">On orders above ₹999</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-shield-check-line text-brand-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-dark-900">Genuine Products</h4>
+                        <p class="text-xs text-dark-400">100% authentic</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-refresh-line text-brand-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-dark-900">Easy Returns</h4>
+                        <p class="text-xs text-dark-400">7-day return policy</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-secure-payment-line text-brand-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-dark-900">Secure Payment</h4>
+                        <p class="text-xs text-dark-400">SSL encrypted</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<%- include('./partials/footer') %>

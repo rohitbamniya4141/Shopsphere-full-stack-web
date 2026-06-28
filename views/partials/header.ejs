@@ -4,22 +4,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ShopSphere - Premium Bag Collection</title>
+    <meta name="description" content="Discover premium bags at ShopSphere. Handpicked luxury collection for every occasion.">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fdf8f0',
+                            100: '#f9edda',
+                            200: '#f2d7b0',
+                            300: '#e9bc7d',
+                            400: '#e0a050',
+                            500: '#d4882e',
+                            600: '#c47024',
+                            700: '#a3561f',
+                            800: '#854520',
+                            900: '#6d3a1d',
+                        },
+                        dark: {
+                            50: '#f6f6f7',
+                            100: '#e1e3e6',
+                            200: '#c3c6cd',
+                            300: '#9da2ac',
+                            400: '#787e8b',
+                            500: '#5d6370',
+                            600: '#4a4e59',
+                            700: '#3d4049',
+                            800: '#34363d',
+                            900: '#1a1b20',
+                            950: '#111116',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fafaf9;
+            color: #1a1b20;
+        }
+
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-slide-down { animation: slideDown 0.4s ease-out forwards; }
+
+        .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+        .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+        .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+        .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+
+        /* Glass effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        /* Product card hover */
+        .product-card {
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+        .product-card:hover .product-image {
+            transform: scale(1.08);
+        }
+        .product-image {
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Button styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #d4882e 0%, #e0a050 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 136, 46, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 136, 46, 0.4);
+        }
+
+        .btn-dark {
+            background: linear-gradient(135deg, #1a1b20 0%, #34363d 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 27, 32, 0.2);
+        }
+        .btn-dark:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(26, 27, 32, 0.3);
+        }
+
+        /* Input focus styling */
+        .input-styled {
+            transition: all 0.3s ease;
+            border: 1.5px solid #e5e7eb;
+        }
+        .input-styled:focus {
+            border-color: #d4882e;
+            box-shadow: 0 0 0 3px rgba(212, 136, 46, 0.1);
+            outline: none;
+        }
+
+        /* Flash message */
+        .flash-message {
+            animation: slideDown 0.4s ease-out, fadeIn 0.4s ease-out;
+        }
+
+        /* Navbar link hover underline */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #d4882e;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .nav-link:hover {
+            color: #d4882e;
+        }
+    </style>
 </head>
 
-<body class="font-['helvetica_now_display']">
-    <nav class="w-full flex justify-between px-5 py-3">
-        <h3 class="text-xl">Scatch</h3>
-        <% var loggedin = typeof loggedin !== 'undefined' ? loggedin : false %>
-        <% if(loggedin){ %>
-                 <div class="flex gap-5">
-                    <a href="/shop">Shop</a>
-                    <a href="">Cart</a>
-                    <a href="">My Account </a>
-                    <a class="text-red-600" href="/users/logout">Logout</a>
+<body class="font-sans antialiased">
+    <!-- Navbar -->
+     <nav class="glass fixed top-0 left-0 right-0 z-50 px-6 md:px-12 lg:px-20 py-4">
+        
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2 group">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                    <i class="ri-shopping-bag-3-fill text-white text-lg"></i>
                 </div>
-        <%} %>
-       
+                <span class="text-xl font-bold tracking-tight text-dark-900">Shop<span class="text-brand-500">Sphere</span></span>
+            </a>
+
+            <!-- Nav Links -->
+            <% var loggedin = typeof loggedin !== 'undefined' ? loggedin : false %>
+            <% if(loggedin){ %>
+                <div class="flex items-center gap-8">
+                <a href="/shop" class="nav-link text-sm font-medium text-dark-600 tracking-wide uppercase">
+                    Shop
+                </a>
+
+                <a href="/cart" class="nav-link text-sm font-medium text-dark-600 tracking-wide uppercase relative">
+                    Cart
+                </a>
+
+                <a href="/orders" class="nav-link text-sm font-medium text-dark-600 tracking-wide uppercase">
+                    Orders
+                </a>
+                <a href="/profile" class="nav-link text-sm font-medium text-dark-600 tracking-wide uppercase">
+                    Profile
+                </a>
+                <a href="/logout" class="ml-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white btn-dark">
+                    Logout
+                </a>
+            </div>
+            <% } else { %>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-dark-400">Premium Bag Collection</span>
+                </div>
+            <% } %>
+        </div>
     </nav>
+
+    <!-- Spacer for fixed navbar -->
+    <div class="h-[72px]"></div>

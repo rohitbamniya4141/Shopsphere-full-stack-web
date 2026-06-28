@@ -5,12 +5,23 @@ const userSchema = mongoose.Schema({
     email: String,
     password: String,
     cart: {
-      type: Array,
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'products'
+            }],
+        default: []
+      },
+    orders: {
+      type: [{
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'orders'
+      }],
       default: []
     },
-    orders: {
-      type: Array,
-      default: []
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user'
     },
     phone: Number,
     picture: String
