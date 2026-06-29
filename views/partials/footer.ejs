@@ -1,28 +1,31 @@
     <!-- Footer -->
-    <footer class="bg-dark-950 text-white mt-auto">
-        <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
+    <footer class="bg-dark-950 text-white mt-auto relative overflow-hidden">
+        <!-- Subtle top accent line -->
+        <div class="h-px bg-gradient-to-r from-transparent via-brand-500/40 to-transparent"></div>
+
+        <div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
 
             <!-- Main Footer -->
-            <div class="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <div class="py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16">
                 <!-- Brand -->
-                <div class="lg:col-span-1">
-                    <div class="flex items-center gap-2 mb-5">
-                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+                <div class="sm:col-span-2 lg:col-span-1">
+                    <div class="flex items-center gap-2.5 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/20">
                             <i class="ri-shopping-bag-3-fill text-white text-lg"></i>
                         </div>
                         <span class="text-xl font-bold tracking-tight">Shop<span class="text-brand-400">Sphere</span></span>
                     </div>
-                    <p class="text-dark-400 text-sm leading-relaxed mb-6">
+                    <p class="text-dark-400 text-sm leading-relaxed mb-8 max-w-xs">
                         Discover handpicked premium bags for every occasion. Quality craftsmanship meets modern design.
                     </p>
                     <div class="flex gap-3">
-                        <a href="#" class="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center hover:bg-brand-600 transition-colors">
+                        <a href="#" class="w-10 h-10 rounded-xl bg-dark-800/80 flex items-center justify-center hover:bg-brand-600 hover:scale-110 hover:shadow-lg hover:shadow-brand-600/25 transition-all duration-300">
                             <i class="ri-instagram-line text-lg"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center hover:bg-brand-600 transition-colors">
+                        <a href="#" class="w-10 h-10 rounded-xl bg-dark-800/80 flex items-center justify-center hover:bg-brand-600 hover:scale-110 hover:shadow-lg hover:shadow-brand-600/25 transition-all duration-300">
                             <i class="ri-twitter-x-line text-lg"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center hover:bg-brand-600 transition-colors">
+                        <a href="#" class="w-10 h-10 rounded-xl bg-dark-800/80 flex items-center justify-center hover:bg-brand-600 hover:scale-110 hover:shadow-lg hover:shadow-brand-600/25 transition-all duration-300">
                             <i class="ri-facebook-fill text-lg"></i>
                         </a>
                     </div>
@@ -30,56 +33,65 @@
 
                 <!-- Quick Links -->
                 <div>
-                    <h4 class="text-sm font-semibold uppercase tracking-wider text-dark-300 mb-5">Quick Links</h4>
-                    <ul class="space-y-3">
-                        <li><a href="/shop" class="text-dark-400 hover:text-brand-400 transition-colors text-sm">All Products</a></li>
-                        <li><a href="/shop" class="text-dark-400 hover:text-brand-400 transition-colors text-sm">New Arrivals</a></li>
-                        <li><a href="/shop" class="text-dark-400 hover:text-brand-400 transition-colors text-sm">Best Sellers</a></li>
-                        <li><a href="/cart" class="text-dark-400 hover:text-brand-400 transition-colors text-sm">My Cart</a></li>
+                    <h4 class="text-xs font-semibold uppercase tracking-[0.2em] text-white/60 mb-6">Quick Links</h4>
+                    <ul class="space-y-3.5">
+                        <li><a href="/shop" class="text-dark-400 hover:text-brand-400 hover:pl-1 transition-all duration-200 text-sm inline-flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-dark-700 group-hover:bg-brand-500 transition-colors"></span>All Products</a></li>
+                        <li><a href="/shop" class="text-dark-400 hover:text-brand-400 hover:pl-1 transition-all duration-200 text-sm inline-flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-dark-700"></span>New Arrivals</a></li>
+                        <li><a href="/shop" class="text-dark-400 hover:text-brand-400 hover:pl-1 transition-all duration-200 text-sm inline-flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-dark-700"></span>Best Sellers</a></li>
+                        <li><a href="/cart" class="text-dark-400 hover:text-brand-400 hover:pl-1 transition-all duration-200 text-sm inline-flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-dark-700"></span>My Cart</a></li>
                     </ul>
                 </div>
 
                 <!-- Categories -->
                 <div>
-                    <h4 class="text-sm font-semibold uppercase tracking-wider text-dark-300 mb-5">Categories</h4>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="text-dark-400 hover:text-brand-400 transition-colors text-sm">Handbags</a></li>
-                        <li><a href="#" class="text-dark-400 hover:text-brand-400 transition-colors text-sm">Backpacks</a></li>
-                        <li><a href="#" class="text-dark-400 hover:text-brand-400 transition-colors text-sm">Clutches</a></li>
-                        <li><a href="#" class="text-dark-400 hover:text-brand-400 transition-colors text-sm">Tote Bags</a></li>
+                    <h4 class="text-xs font-semibold uppercase tracking-[0.2em] text-white/60 mb-6">Categories</h4>
+                    <ul class="space-y-3.5">
+                        <li><a href="#" class="text-dark-400 hover:text-brand-400 hover:pl-1 transition-all duration-200 text-sm inline-flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-dark-700"></span>Handbags</a></li>
+                        <li><a href="#" class="text-dark-400 hover:text-brand-400 hover:pl-1 transition-all duration-200 text-sm inline-flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-dark-700"></span>Backpacks</a></li>
+                        <li><a href="#" class="text-dark-400 hover:text-brand-400 hover:pl-1 transition-all duration-200 text-sm inline-flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-dark-700"></span>Clutches</a></li>
+                        <li><a href="#" class="text-dark-400 hover:text-brand-400 hover:pl-1 transition-all duration-200 text-sm inline-flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-dark-700"></span>Tote Bags</a></li>
                     </ul>
                 </div>
 
                 <!-- Contact -->
                 <div>
-                    <h4 class="text-sm font-semibold uppercase tracking-wider text-dark-300 mb-5">Contact</h4>
-                    <ul class="space-y-3">
-                        <li class="flex items-center gap-2 text-dark-400 text-sm">
-                            <i class="ri-mail-line text-brand-500"></i>
-                            support@shopsphere.com
+                    <h4 class="text-xs font-semibold uppercase tracking-[0.2em] text-white/60 mb-6">Contact</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3 text-dark-400 text-sm group">
+                            <div class="w-8 h-8 rounded-lg bg-dark-800/80 flex items-center justify-center flex-shrink-0 group-hover:bg-brand-600/20 transition-colors">
+                                <i class="ri-mail-line text-brand-500 text-sm"></i>
+                            </div>
+                            <span class="pt-1.5">support@shopsphere.com</span>
                         </li>
-                        <li class="flex items-center gap-2 text-dark-400 text-sm">
-                            <i class="ri-phone-line text-brand-500"></i>
-                            +91 78690 12986
+                        <li class="flex items-start gap-3 text-dark-400 text-sm group">
+                            <div class="w-8 h-8 rounded-lg bg-dark-800/80 flex items-center justify-center flex-shrink-0 group-hover:bg-brand-600/20 transition-colors">
+                                <i class="ri-phone-line text-brand-500 text-sm"></i>
+                            </div>
+                            <span class="pt-1.5">+91 78690 12986</span>
                         </li>
-                        <li class="flex items-center gap-2 text-dark-400 text-sm">
-                            <i class="ri-map-pin-line text-brand-500"></i>
-                            Dewas, India
+                        <li class="flex items-start gap-3 text-dark-400 text-sm group">
+                            <div class="w-8 h-8 rounded-lg bg-dark-800/80 flex items-center justify-center flex-shrink-0 group-hover:bg-brand-600/20 transition-colors">
+                                <i class="ri-map-pin-line text-brand-500 text-sm"></i>
+                            </div>
+                            <span class="pt-1.5">Dewas, India</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
             <!-- Bottom Bar -->
-            <div class="border-t border-dark-800 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-dark-500 text-xs">&copy; 2026 ShopSphere. All rights reserved.</p>
-                <div class="flex gap-6">
-                    <a href="#" class="text-dark-500 hover:text-dark-300 transition-colors text-xs">Privacy Policy</a>
-                    <a href="#" class="text-dark-500 hover:text-dark-300 transition-colors text-xs">Terms of Service</a>
-                    <a href="#" class="text-dark-500 hover:text-dark-300 transition-colors text-xs">Shipping Policy</a>
+            <div class="border-t border-dark-800/60 py-7 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-dark-500 text-xs tracking-wide">&copy; 2026 ShopSphere. All rights reserved.</p>
+                <div class="flex gap-8">
+                    <a href="#" class="text-dark-500 hover:text-brand-400 transition-colors text-xs tracking-wide">Privacy Policy</a>
+                    <a href="#" class="text-dark-500 hover:text-brand-400 transition-colors text-xs tracking-wide">Terms of Service</a>
+                    <a href="#" class="text-dark-500 hover:text-brand-400 transition-colors text-xs tracking-wide">Shipping Policy</a>
                 </div>
             </div>
         </div>
+
+        <!-- Background decorative element -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-brand-500/[0.02] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
     </footer>
 </body>
 

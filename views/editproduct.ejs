@@ -1,152 +1,180 @@
-<%- include('./partials/header') %>
+<%- include('./partials/admin-header') %>
 
-<div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-10">
-    <div class="flex gap-10">
+    <div class="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 lg:px-16 xl:px-20 py-8 md:py-12">
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
 
-        <!-- Sidebar -->
-        <aside class="hidden lg:block w-64 flex-shrink-0">
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-24">
-                <div class="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
-                    <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center">
-                        <i class="ri-settings-3-line text-brand-600 text-xl"></i>
+            <!-- Admin Sidebar -->
+            <aside class="hidden lg:block w-[260px] flex-shrink-0">
+                <div class="bg-white rounded-2xl border border-gray-100/80 shadow-lg shadow-black/[0.03] p-6 sticky top-24">
+                    <div class="flex items-center gap-3.5 mb-6 pb-6 border-b border-gray-100">
+                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-md shadow-brand-500/20">
+                            <i class="ri-settings-3-line text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-dark-900 tracking-tight">Admin Panel</h3>
+                            <p class="text-[11px] text-dark-400 mt-0.5">Manage your store</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-dark-900">Admin Panel</h3>
-                        <p class="text-xs text-dark-400">Manage your store</p>
+
+                    <div class="space-y-1">
+                        <a href="/owners/admin" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-50 to-brand-100/50 text-brand-700 text-sm font-semibold border border-brand-200/40 shadow-sm shadow-brand-500/5 transition-all">
+                            <i class="ri-arrow-left-line text-base"></i> Back to Dashboard
+                        </a>
+                    </div>
+
+                    <div class="mt-6 pt-5 border-t border-gray-100">
+                        <div class="flex items-center gap-2 text-xs text-dark-300 font-medium">
+                            <i class="ri-edit-2-line text-brand-400"></i> Edit Mode Active
+                        </div>
                     </div>
                 </div>
+            </aside>
 
-                <div class="space-y-1">
-                    <a href="/owners/admin"
-                        class="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-50 text-brand-700 text-sm font-medium">
-                        <i class="ri-arrow-left-line"></i> Back to Dashboard
+            <!-- Main Content -->
+            <main class="flex-1 min-w-0 animate-fade-in-up">
+
+                <!-- Page Header -->
+                <div class="mb-8">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <div class="w-1.5 h-6 rounded-full bg-gradient-to-b from-brand-400 to-brand-600"></div>
+                        <p class="text-brand-600 text-xs font-bold uppercase tracking-[0.15em]">Admin</p>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl lg:text-[2rem] font-serif font-bold text-dark-900 tracking-tight leading-tight">
+                        Edit Product
+                    </h1>
+                    <p class="text-dark-400 text-sm mt-1.5 leading-relaxed">
+                        Update product information and display settings
+                    </p>
+                    <!-- Mobile back link -->
+                    <a href="/owners/admin" class="lg:hidden inline-flex items-center gap-1.5 mt-3 text-xs text-brand-600 font-semibold hover:text-brand-700 transition-colors">
+                        <i class="ri-arrow-left-s-line"></i> Back to Dashboard
                     </a>
                 </div>
-            </div>
-        </aside>
 
-        <!-- Main -->
-        <main class="flex-1 animate-fade-in-up">
+                <!-- Edit Form Card -->
+                <div class="bg-white rounded-2xl border border-gray-100/80 shadow-lg shadow-black/[0.03] overflow-hidden">
 
-            <div class="mb-8">
-                <p class="text-brand-600 text-sm font-semibold uppercase tracking-wider mb-2">Admin</p>
-                <h1 class="text-2xl md:text-3xl font-serif font-bold text-dark-900">
-                    Edit Product
-                </h1>
-                <p class="text-dark-400 text-sm mt-1">
-                    Update product information
-                </p>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-
-                <form action="/owners/edit/<%= product._id %>" method="POST">
-
-                    <div class="mb-8">
-                        <h3 class="text-sm font-bold text-dark-800 mb-4">
-                            Product Details
-                        </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                            <div class="md:col-span-2">
-                                <label class="text-xs font-medium">Product Name</label>
-
-                                <input
-                                    name="name"
-                                    type="text"
-                                    value="<%= product.name %>"
-                                    class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50">
+                    <!-- Form Header -->
+                    <div class="px-6 md:px-8 pt-7 pb-5 border-b border-gray-100/80 bg-gradient-to-r from-gray-50/50 to-white">
+                        <h2 class="text-base font-bold text-dark-900 flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                                <i class="ri-edit-line text-blue-500 text-base"></i>
                             </div>
-
-                            <div>
-                                <label class="text-xs font-medium">Price</label>
-
-                                <input
-                                    name="price"
-                                    type="text"
-                                    value="<%= product.price %>"
-                                    class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50">
-                            </div>
-
-                            <div>
-                                <label class="text-xs font-medium">Discount</label>
-
-                                <input
-                                    name="discount"
-                                    type="text"
-                                    value="<%= product.discount %>"
-                                    class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50">
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="mb-8">
-
-                        <h3 class="text-sm font-bold text-dark-800 mb-4">
-                            Display Colors
-                        </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                            <div>
-                                <label class="text-xs font-medium">Background Color</label>
-
-                                <input
-                                    name="bgcolor"
-                                    type="text"
-                                    value="<%= product.bgcolor %>"
-                                    class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50">
-                            </div>
-
-                            <div>
-                                <label class="text-xs font-medium">Panel Color</label>
-
-                                <input
-                                    name="panelcolor"
-                                    type="text"
-                                    value="<%= product.panelcolor %>"
-                                    class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50">
-                            </div>
-
-                            <div>
-                                <label class="text-xs font-medium">Text Color</label>
-
-                                <input
-                                    name="textcolor"
-                                    type="text"
-                                    value="<%= product.textcolor %>"
-                                    class="input-styled w-full px-4 py-3 rounded-xl bg-gray-50">
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="flex items-center gap-4">
-
-                        <button
-                            type="submit"
-                            class="btn-primary text-white font-semibold px-8 py-3.5 rounded-xl">
-                            <i class="ri-save-line"></i>
                             Update Product
-                        </button>
-
-                        <a href="/owners/admin"
-                            class="px-6 py-3.5 rounded-xl border border-gray-200 text-dark-600">
-                            Cancel
-                        </a>
-
+                        </h2>
                     </div>
 
-                </form>
+                    <form action="/owners/edit/<%= product._id %>" method="POST" class="p-6 md:p-8">
 
-            </div>
+                        <!-- Product Details Section -->
+                        <div class="mb-8">
+                            <h3 class="text-xs font-bold text-dark-800 mb-5 flex items-center gap-2.5 uppercase tracking-[0.12em]">
+                                <div class="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center">
+                                    <i class="ri-information-line text-blue-500 text-xs"></i>
+                                </div>
+                                Product Details
+                            </h3>
 
-        </main>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
+                                <div class="md:col-span-2">
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Product Name</label>
+                                    <input
+                                        name="name"
+                                        type="text"
+                                        value="<%= product.name %>"
+                                        class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium">
+                                </div>
+
+                                <div>
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Price (₹)</label>
+                                    <input
+                                        name="price"
+                                        type="text"
+                                        value="<%= product.price %>"
+                                        class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium">
+                                </div>
+
+                                <div>
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Discount (₹)</label>
+                                    <input
+                                        name="discount"
+                                        type="text"
+                                        value="<%= product.discount %>"
+                                        class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium">
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Display Colors Section -->
+                        <div class="mb-8">
+                            <h3 class="text-xs font-bold text-dark-800 mb-5 flex items-center gap-2.5 uppercase tracking-[0.12em]">
+                                <div class="w-6 h-6 rounded-md bg-purple-50 flex items-center justify-center">
+                                    <i class="ri-palette-line text-purple-500 text-xs"></i>
+                                </div>
+                                Display Colors
+                            </h3>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+
+                                <div>
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Background Color</label>
+                                    <input
+                                        name="bgcolor"
+                                        type="text"
+                                        value="<%= product.bgcolor %>"
+                                        class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium font-mono">
+                                </div>
+
+                                <div>
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Panel Color</label>
+                                    <input
+                                        name="panelcolor"
+                                        type="text"
+                                        value="<%= product.panelcolor %>"
+                                        class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium font-mono">
+                                </div>
+
+                                <div>
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Text Color</label>
+                                    <input
+                                        name="textcolor"
+                                        type="text"
+                                        value="<%= product.textcolor %>"
+                                        class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium font-mono">
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="border-t border-gray-100 my-6"></div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+
+                            <button
+                                type="submit"
+                                class="w-full sm:w-auto btn-primary text-white font-bold px-10 py-3.5 rounded-xl text-sm tracking-wide inline-flex items-center justify-center gap-2.5">
+                                <i class="ri-save-line text-base"></i>
+                                Update Product
+                            </button>
+
+                            <a href="/owners/admin"
+                                class="w-full sm:w-auto text-center px-8 py-3.5 rounded-xl border border-gray-200 text-dark-500 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 hover:text-dark-700 transition-all duration-200">
+                                Cancel
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </main>
+
+        </div>
     </div>
-</div>
 
 <%- include('./partials/footer') %>

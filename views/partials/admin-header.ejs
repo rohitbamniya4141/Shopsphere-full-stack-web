@@ -235,34 +235,64 @@
         <div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
             <div class="flex justify-between items-center h-[72px]">
                 <!-- Logo -->
-                <a href="/" class="flex items-center gap-2.5 group">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
-                        <i class="ri-shopping-bag-3-fill text-white text-lg"></i>
-                    </div>
-                    <span class="text-xl font-bold tracking-tight text-dark-900">Shop<span class="text-brand-500">Sphere</span></span>
-                </a>
+                                  <a href="/owners/dashboard" class="flex items-center gap-2.5 group">
+
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
+
+                            <i class="ri-shield-user-fill text-white text-lg"></i>
+
+                        </div>
+
+                        <div>
+
+                            <span class="text-xl font-bold tracking-tight text-dark-900">
+                                Shop<span class="text-brand-500">Sphere</span>
+                            </span>
+
+                            <p class="text-[10px] tracking-[3px] uppercase text-brand-500 font-semibold">
+                                ADMIN PANEL
+                            </p>
+
+                        </div>
+
+                    </a>
 
                 <!-- Nav Links -->
                 <% var loggedin = typeof loggedin !== 'undefined' ? loggedin : false %>
                 <% if(loggedin){ %>
-                    <!-- Desktop Nav -->
+                                        <!-- Desktop Nav -->
                     <div class="hidden md:flex items-center gap-1">
-                        <a href="/shop" class="nav-link text-[13px] font-medium text-dark-500 tracking-widest uppercase px-4 py-2">
-                            Shop
+
+                        <a href="/owners/dashboard"
+                          class="nav-link text-[13px] font-medium text-dark-500 tracking-widest uppercase px-4 py-2">
+                            Dashboard
                         </a>
-                        <a href="/cart" class="nav-link text-[13px] font-medium text-dark-500 tracking-widest uppercase px-4 py-2 relative group">
-                            <i class="ri-shopping-bag-line text-base mr-1 group-hover:text-brand-500 transition-colors"></i>Cart
-                            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-brand-500 rounded-full ring-2 ring-white"></span>
+
+                        <a href="/owners/admin"
+                          class="nav-link text-[13px] font-medium text-dark-500 tracking-widest uppercase px-4 py-2">
+                            Create
                         </a>
-                        <a href="/orders" class="nav-link text-[13px] font-medium text-dark-500 tracking-widest uppercase px-4 py-2">
+
+                        <a href="/owners/products"
+                          class="nav-link text-[13px] font-medium text-dark-500 tracking-widest uppercase px-4 py-2">
+                            Products
+                        </a>
+
+                        <a href="/owners/orders"
+                          class="nav-link text-[13px] font-medium text-dark-500 tracking-widest uppercase px-4 py-2">
                             Orders
                         </a>
-                        <a href="/profile" class="nav-link text-[13px] font-medium text-dark-500 tracking-widest uppercase px-4 py-2">
-                            Profile
+
+                        <a href="/owners/users"
+                          class="nav-link text-[13px] font-medium text-dark-500 tracking-widest uppercase px-4 py-2">
+                            Customers
                         </a>
-                        <a href="/logout" class="ml-3 px-6 py-2.5 rounded-full text-xs font-semibold text-white btn-dark tracking-wider uppercase">
+
+                        <a href="/owners/logout"
+                          class="ml-3 px-6 py-2.5 rounded-full text-xs font-semibold text-white btn-dark tracking-wider uppercase">
                             Logout
                         </a>
+
                     </div>
 
                     <!-- Mobile Hamburger -->
@@ -281,33 +311,72 @@
         </div>
 
         <!-- Mobile Menu -->
-        <% if(loggedin){ %>
-        <div id="mobile-menu" class="mobile-menu md:hidden absolute top-[72px] left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-dark-100 shadow-xl">
-            <div class="max-w-7xl mx-auto px-5 py-4 flex flex-col gap-1">
-                <a href="/shop" class="mobile-nav-link flex items-center gap-3 text-dark-600 text-sm font-medium py-3 px-4 rounded-xl hover:bg-brand-50">
-                    <i class="ri-store-2-line text-lg text-brand-500"></i>
-                    Shop
-                </a>
-                <a href="/cart" class="mobile-nav-link flex items-center gap-3 text-dark-600 text-sm font-medium py-3 px-4 rounded-xl hover:bg-brand-50">
-                    <i class="ri-shopping-bag-line text-lg text-brand-500"></i>
-                    Cart
-                </a>
-                <a href="/orders" class="mobile-nav-link flex items-center gap-3 text-dark-600 text-sm font-medium py-3 px-4 rounded-xl hover:bg-brand-50">
-                    <i class="ri-file-list-3-line text-lg text-brand-500"></i>
-                    Orders
-                </a>
-                <a href="/profile" class="mobile-nav-link flex items-center gap-3 text-dark-600 text-sm font-medium py-3 px-4 rounded-xl hover:bg-brand-50">
-                    <i class="ri-user-3-line text-lg text-brand-500"></i>
-                    Profile
-                </a>
-                <div class="mt-2 pt-3 border-t border-dark-100">
-                    <a href="/logout" class="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-white btn-dark">
-                        <i class="ri-logout-box-r-line"></i>
-                        Logout
-                    </a>
-                </div>
-            </div>
-        </div>
+          <% if(loggedin){ %>
+          <div id="mobile-menu" class="mobile-menu md:hidden absolute top-[72px] left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-dark-100 shadow-xl">
+
+              <div class="max-w-7xl mx-auto px-5 py-4 flex flex-col gap-1">
+
+                  <a href="/owners/dashboard"
+                    class="mobile-nav-link flex items-center gap-3 text-dark-600 text-sm font-medium py-3 px-4 rounded-xl hover:bg-brand-50">
+
+                      <i class="ri-dashboard-line text-lg text-brand-500"></i>
+
+                      Dashboard
+
+                  </a>
+
+                  <a href="/owners/admin"
+                    class="mobile-nav-link flex items-center gap-3 text-dark-600 text-sm font-medium py-3 px-4 rounded-xl hover:bg-brand-50">
+
+                      <i class="ri-add-circle-line text-lg text-brand-500"></i>
+
+                      Create Product
+
+                  </a>
+
+                  <a href="/owners/products"
+                    class="mobile-nav-link flex items-center gap-3 text-dark-600 text-sm font-medium py-3 px-4 rounded-xl hover:bg-brand-50">
+
+                      <i class="ri-shopping-bag-line text-lg text-brand-500"></i>
+
+                      Products
+
+                  </a>
+
+                  <a href="/owners/orders"
+                    class="mobile-nav-link flex items-center gap-3 text-dark-600 text-sm font-medium py-3 px-4 rounded-xl hover:bg-brand-50">
+
+                      <i class="ri-file-list-3-line text-lg text-brand-500"></i>
+
+                      Orders
+
+                  </a>
+
+                  <a href="/owners/users"
+                    class="mobile-nav-link flex items-center gap-3 text-dark-600 text-sm font-medium py-3 px-4 rounded-xl hover:bg-brand-50">
+
+                      <i class="ri-group-line text-lg text-brand-500"></i>
+
+                      Customers
+
+                  </a>
+
+                  <div class="mt-2 pt-3 border-t border-dark-100">
+
+                      <a href="/owners/logout"
+                        class="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-white btn-dark">
+
+                          <i class="ri-logout-box-r-line"></i>
+
+                          Logout
+
+                      </a>
+
+                  </div>
+
+              </div>
+
+          </div>
         <% } %>
     </nav>
 

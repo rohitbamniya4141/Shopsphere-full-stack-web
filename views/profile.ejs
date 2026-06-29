@@ -1,54 +1,89 @@
 <%- include('./partials/header') %>
 
-<div class="max-w-4xl mx-auto px-6 py-10">
+    <div class="max-w-4xl mx-auto px-6 md:px-12 py-12">
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <!-- Profile Card -->
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
 
-        <div class="flex items-center gap-5 mb-8">
-
-            <div class="w-20 h-20 rounded-full bg-brand-500 flex items-center justify-center text-white text-3xl font-bold">
-                <%= user.fullname.charAt(0).toUpperCase() %>
+            <!-- Top Accent Bar -->
+            <div class="h-32 bg-gradient-to-r from-brand-500 via-brand-400 to-brand-600 relative overflow-hidden">
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10"></div>
+                    <div class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/10"></div>
+                    <div class="absolute top-6 right-20 w-16 h-16 rounded-full bg-white/5"></div>
+                </div>
             </div>
 
-            <div>
-                <h1 class="text-3xl font-bold text-dark-900">
-                    <%= user.fullname %>
-                </h1>
+            <!-- Avatar & Info Section -->
+            <div class="px-8 sm:px-10 pb-10 -mt-14 relative">
 
-                <p class="text-dark-500">
-                    <%= user.email %>
-                </p>
+                <!-- Avatar -->
+                <div class="mb-8">
+                    <div class="w-28 h-28 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-4xl font-bold ring-4 ring-white shadow-xl shadow-brand-500/20">
+                        <%= user.fullname.charAt(0).toUpperCase() %>
+                    </div>
+                </div>
+
+                <!-- Name & Email -->
+                <div class="mb-10">
+                    <h1 class="text-3xl md:text-4xl font-serif font-bold text-dark-900 tracking-tight">
+                        <%= user.fullname %>
+                    </h1>
+                    <div class="flex items-center gap-2 mt-3">
+                        <i class="ri-mail-line text-dark-300 text-sm"></i>
+                        <p class="text-dark-400 text-sm tracking-wide">
+                            <%= user.email %>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                    <!-- Cart Items Stat -->
+                    <div class="group bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-100 hover:border-brand-200 hover:shadow-md hover:shadow-brand-100/30 transition-all duration-300">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center group-hover:bg-brand-100 transition-colors">
+                                <i class="ri-shopping-cart-2-line text-brand-500 text-lg"></i>
+                            </div>
+                            <h3 class="text-xs text-dark-400 uppercase tracking-widest font-semibold">Cart Items</h3>
+                        </div>
+                        <p class="text-4xl font-bold text-dark-900 tracking-tight tabular-nums">
+                            <%= user.cart.length %>
+                        </p>
+                    </div>
+
+                    <!-- Total Orders Stat -->
+                    <div class="group bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-100 hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-100/30 transition-all duration-300">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                                <i class="ri-box-3-line text-emerald-500 text-lg"></i>
+                            </div>
+                            <h3 class="text-xs text-dark-400 uppercase tracking-widest font-semibold">Total Orders</h3>
+                        </div>
+                        <p class="text-4xl font-bold text-dark-900 tracking-tight tabular-nums">
+                            <%= user.orders.length %>
+                        </p>
+                    </div>
+
+                    <!-- Member Since Stat -->
+                    <div class="group bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-100 hover:border-blue-200 hover:shadow-md hover:shadow-blue-100/30 transition-all duration-300">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                                <i class="ri-vip-crown-2-line text-blue-500 text-lg"></i>
+                            </div>
+                            <h3 class="text-xs text-dark-400 uppercase tracking-widest font-semibold">Member Since</h3>
+                        </div>
+                        <p class="text-lg font-bold text-dark-900 tracking-tight">
+                            ShopSphere User
+                        </p>
+                        <p class="text-xs text-dark-300 mt-1">Premium Member</p>
+                    </div>
+
+                </div>
             </div>
-
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-            <div class="bg-gray-50 rounded-xl p-5">
-                <h3 class="text-sm text-dark-400">Cart Items</h3>
-                <p class="text-3xl font-bold mt-2">
-                    <%= user.cart.length %>
-                </p>
-            </div>
-
-            <div class="bg-gray-50 rounded-xl p-5">
-                <h3 class="text-sm text-dark-400">Total Orders</h3>
-                <p class="text-3xl font-bold mt-2">
-                    <%= user.orders.length %>
-                </p>
-            </div>
-
-            <div class="bg-gray-50 rounded-xl p-5">
-                <h3 class="text-sm text-dark-400">Member Since</h3>
-                <p class="text-lg font-semibold mt-2">
-                    ShopSphere User
-                </p>
-            </div>
-
         </div>
 
     </div>
-
-</div>
 
 <%- include('./partials/footer') %>

@@ -4,7 +4,7 @@ module.exports = function(req, res, next){
 
         req.flash("error","Access Denied");
 
-        return res.redirect("/shop");
+        res.redirect("/owners/dashboard");
 
     }
 

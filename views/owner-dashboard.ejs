@@ -1,0 +1,99 @@
+<%- include('./partials/admin-header') %>
+
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+    <!-- Header -->
+    <div class="mb-10">
+        <p class="text-brand-500 font-semibold uppercase tracking-widest text-sm">
+            Admin Panel
+        </p>
+
+        <h1 class="text-4xl font-bold text-gray-800 mt-2">
+            Welcome Back 👋
+        </h1>
+
+        <p class="text-gray-500 mt-2">
+            Manage your products, customers and orders from one place.
+        </p>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Create Product -->
+        <a href="/owners/admin"
+            class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+
+            <div class="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center mb-5">
+                <i class="ri-add-circle-fill text-3xl text-orange-500"></i>
+            </div>
+
+            <h2 class="text-xl font-semibold text-gray-800 group-hover:text-orange-500">
+                Create Product
+            </h2>
+
+            <p class="text-gray-500 mt-2 text-sm">
+                Add a new product to your store.
+            </p>
+
+        </a>
+
+        <!-- Products -->
+        <a href="/owners/products"
+            class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+
+            <div class="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center mb-5">
+                <i class="ri-shopping-bag-3-fill text-3xl text-blue-500"></i>
+            </div>
+
+            <h2 class="text-xl font-semibold text-gray-800 group-hover:text-blue-500">
+                Products
+            </h2>
+
+            <p class="text-gray-500 mt-2 text-sm">
+                View, edit and delete products.
+            </p>
+
+        </a>
+
+        <!-- Orders -->
+        <a href="/owners/orders"
+            class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+
+            <div class="w-14 h-14 rounded-xl bg-green-100 flex items-center justify-center mb-5">
+                <i class="ri-file-list-3-fill text-3xl text-green-500"></i>
+            </div>
+
+            <h2 class="text-xl font-semibold text-gray-800 group-hover:text-green-500">
+                Orders
+            </h2>
+
+            <p class="text-gray-500 mt-2 text-sm">
+                Track and manage customer orders.
+            </p>
+
+        </a>
+
+        <!-- Customers -->
+        <a href="/owners/users"
+            class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+
+            <div class="w-14 h-14 rounded-xl bg-purple-100 flex items-center justify-center mb-5">
+                <i class="ri-group-fill text-3xl text-purple-500"></i>
+            </div>
+
+            <h2 class="text-xl font-semibold text-gray-800 group-hover:text-purple-500">
+                Customers
+            </h2>
+
+            <p class="text-gray-500 mt-2 text-sm">
+                View registered customers.
+            </p>
+
+        </a>
+
+    </div>
+
+</div>
+
+<%- include('./partials/footer') %>

@@ -1,24 +1,91 @@
 <%- include('./partials/header') %>
 
-<div class="max-w-7xl mx-auto px-6 py-10">
-    <h1 class="text-3xl font-bold">
-        My Orders
-    </h1>
+    <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-12">
 
-    <% user.orders.forEach(function(order){ %>
-
-        <div class="border rounded-lg p-5 mt-5">
-            <h2>Order ID: <%= order._id %></h2>
-
-            <p>Total Amount: ₹ <%= order.totalAmount %></p>
-
-            <p>Status: <%= order.status %></p>
-
-            <p>Date: <%= order.createdAt.toDateString() %></p>
+        <!-- Page Header -->
+        <div class="mb-12 animate-fade-in-up">
+            <h1 class="text-3xl md:text-4xl font-serif font-bold text-dark-900 tracking-tight">My Orders</h1>
+            <p class="text-dark-400 text-sm mt-2 tracking-wide">Track and manage your purchases</p>
         </div>
 
-    <% }) %>
+        <% if(user.orders.length === 0){ %>
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center py-28 animate-fade-in-up">
+                <div class="w-28 h-28 rounded-full bg-gradient-to-br from-brand-50 to-brand-100/50 flex items-center justify-center mb-8">
+                    <i class="ri-shopping-bag-line text-5xl text-brand-300"></i>
+                </div>
+                <h2 class="text-3xl font-serif font-semibold text-dark-800 mb-3">No orders yet</h2>
+                <p class="text-dark-400 text-sm mb-10 text-center max-w-sm leading-relaxed">You haven't placed any orders yet. Start exploring our collection and find something you love!</p>
+                <a href="/shop" class="btn-primary text-white font-semibold px-10 py-4 rounded-2xl text-sm tracking-wide inline-flex items-center gap-2.5 group">
+                    <i class="ri-shopping-bag-line group-hover:scale-110 transition-transform"></i>
+                    Start Shopping
+                </a>
+            </div>
+        <% } else { %>
 
-</div>
+            <!-- Orders Grid -->
+            <div class="space-y-5">
+                <% user.orders.forEach(function(order){ %>
+                    <div class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200/80 p-6 sm:p-7 transition-all duration-500 animate-fade-in-up">
+
+                        <!-- Top Row: Order ID & Date -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
+                                    <i class="ri-box-3-line text-brand-500 text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] text-dark-300 uppercase tracking-widest font-medium">Order ID</p>
+                                    <p class="text-sm font-semibold text-dark-800 font-mono tracking-wide mt-0.5"><%= order._id %></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-dark-400 sm:text-right">
+                                <i class="ri-calendar-line text-sm"></i>
+                                <span class="text-sm font-medium"><%= order.createdAt.toDateString() %></span>
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="border-t border-dashed border-gray-100 my-5"></div>
+
+                        <!-- Bottom Row: Amount & Status -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <p class="text-[11px] text-dark-300 uppercase tracking-widest font-medium mb-1">Total Amount</p>
+                                <p class="text-2xl font-bold text-emerald-600 tracking-tight tabular-nums">₹ <%= order.totalAmount %></p>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
+                                    <% if(order.status === 'Delivered'){ %>
+                                        bg-emerald-50 text-emerald-700 border border-emerald-100
+                                    <% } else if(order.status === 'Shipped'){ %>
+                                        bg-blue-50 text-blue-700 border border-blue-100
+                                    <% } else if(order.status === 'Cancelled'){ %>
+                                        bg-red-50 text-red-700 border border-red-100
+                                    <% } else { %>
+                                        bg-amber-50 text-amber-700 border border-amber-100
+                                    <% } %>
+                                ">
+                                    <span class="w-2 h-2 rounded-full
+                                        <% if(order.status === 'Delivered'){ %>
+                                            bg-emerald-500
+                                        <% } else if(order.status === 'Shipped'){ %>
+                                            bg-blue-500
+                                        <% } else if(order.status === 'Cancelled'){ %>
+                                            bg-red-500
+                                        <% } else { %>
+                                            bg-amber-500
+                                        <% } %>
+                                    "></span>
+                                    <%= order.status %>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+
+        <% } %>
+    </div>
 
 <%- include('./partials/footer') %>

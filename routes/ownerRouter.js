@@ -1,17 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const ownerModel = require('../models/owner-Model');
+const ownerModel = require('../models/owner-model');
 const productModel = require('../models/product-model');
 const { isValidObjectId } = require('mongoose');
 const orderModel = require('../models/order-model');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const{generateToken} = require('../utils/generateToken');
 
-const isLoggedIn = require('../middlewares/isLoggedIn');
-const isAdmin = require('../middlewares/isAdmin');
+const isOwnerLoggedIn = require('../middlewares/isOwnerLoggedIn');
 
 
 router.get('/', (req, res) => {
     res.send('Owner route is working!');
 });
+
 if(process.env.NODE_ENV === "development"){
     router.post('/create', async function(req, res){
         let owners = await ownerModel.find({});
@@ -19,15 +22,57 @@ if(process.env.NODE_ENV === "development"){
             return res.status(402).send("You dont have permission to create owner")
         }
         const {fullname, email, password} = req.body;
+
+            const salt = await bcrypt.genSalt(10);
+            const hash = await bcrypt.hash(password, salt);
+
             let createdOwner = await ownerModel.create({
                         fullname,
                         email,
-                        password,
+                        password: hash,
                     })
          res.status(202).send(createdOwner);
     });
 }
-router.get('/admin', isLoggedIn, isAdmin, async function(req, res){
+
+router.get('/login', (req, res) => {
+    let error = req.flash('error');
+    res.render('owner-login', { error, loggedin: false });
+});
+
+router.post('/login', async function(req, res){
+    try{
+        let {email, password} = req.body;
+
+        if(!email || !password){
+            req.flash('error', 'Email and password are required');
+            return res.redirect('/owners/login');
+        }
+
+        let owner = await ownerModel.findOne({email: email});
+        if(!owner){
+            req.flash('error', 'Email or password is incorrect');
+            return res.redirect('/owners/login');
+        }
+
+        let result = await bcrypt.compare(password, owner.password);
+        if(result){
+            let token = generateToken(owner);
+            res.cookie("ownerToken", token);
+            res.redirect("/owners/dashboard");
+        }
+        else{
+            req.flash('error', 'Email or password is incorrect');
+            res.redirect('/owners/login');
+        }
+    }catch(err){
+        console.log(err.message);
+        req.flash('error', 'Something went wrong, please try again');
+        res.redirect('/owners/login');
+    }
+});
+
+router.get('/admin', isOwnerLoggedIn, async function(req, res){
 
     let success = req.flash("success");
 
@@ -54,7 +99,7 @@ router.get('/admin', isLoggedIn, isAdmin, async function(req, res){
 
 });
 
-router.get('/delete/:id',isLoggedIn, isAdmin, async function(req, res){
+router.get('/delete/:id', isOwnerLoggedIn, async function(req, res){
 
     try{
 
@@ -74,7 +119,7 @@ router.get('/delete/:id',isLoggedIn, isAdmin, async function(req, res){
 
 });
 
-router.get('/edit/:id',isLoggedIn, isAdmin, async function(req, res){
+router.get('/edit/:id', isOwnerLoggedIn, async function(req, res){
 
     let product = await productModel.findById(req.params.id);
 
@@ -85,7 +130,7 @@ router.get('/edit/:id',isLoggedIn, isAdmin, async function(req, res){
 
 });
 
-router.post('/edit/:id',isLoggedIn, isAdmin, async function(req, res){
+router.post('/edit/:id', isOwnerLoggedIn, async function(req, res){
 
     let {name, price, discount, bgcolor, panelcolor, textcolor} = req.body;
 
@@ -104,6 +149,20 @@ router.post('/edit/:id',isLoggedIn, isAdmin, async function(req, res){
 
     res.redirect('/owners/admin');
 
+});
+
+router.get("/dashboard", isOwnerLoggedIn, async (req, res) => {
+
+    res.render("owner-dashboard",{
+        loggedin:true,
+        isAdmin:true
+    });
+
+});
+
+router.get('/logout', (req, res) => {
+    res.clearCookie('ownerToken');
+    res.redirect('/owners/login');
 });
 
 module.exports = router;
