@@ -9,6 +9,8 @@ const indexRouter = require('./routes/index');
 const ownerRouter = require('./routes/ownerRouter');
 const usersRouter = require('./routes/userRouter');
 const productsRouter = require('./routes/productsRouter');
+const paymentRouter = require("./routes/paymentRouter");
+
 
 
 const expressSession = require('express-session');
@@ -32,5 +34,6 @@ app.use('/', indexRouter);
 app.use('/owners',ownerRouter);
 app.use('/users',usersRouter);
 app.use('/products',productsRouter);
+app.use('/payment', paymentRouter);
 
 app.listen(3000);

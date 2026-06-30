@@ -1,0 +1,133 @@
+<%- include('./partials/admin-header') %>
+
+<div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10 lg:py-14 animate-fade-in-up">
+
+    <!-- Page Header -->
+    <div class="mb-10">
+        <div class="h-1 w-16 rounded-full bg-gradient-to-r from-brand-500 to-brand-700 mb-5"></div>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <h1 class="text-3xl lg:text-4xl font-bold text-dark-900 tracking-tight">
+                All Customers
+            </h1>
+            <span class="inline-flex items-center justify-center w-fit px-3.5 py-1 rounded-full text-xs font-semibold tracking-wide bg-brand-100 text-brand-700">
+                <%= users.length %> <%= users.length === 1 ? 'customer' : 'customers' %>
+            </span>
+        </div>
+        <p class="text-dark-400 mt-2 text-sm">
+            View and manage all registered customers on ShopSphere.
+        </p>
+    </div>
+
+    <% if (users.length > 0) { %>
+
+        <!-- Customers Card -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+            <!-- Desktop Table Header (hidden on mobile) -->
+            <div class="hidden md:grid md:grid-cols-12 gap-4 px-6 py-4 bg-dark-50/60 border-b border-gray-100">
+                <div class="col-span-5 text-xs font-semibold uppercase tracking-[0.15em] text-dark-400">
+                    Customer
+                </div>
+                <div class="col-span-3 text-xs font-semibold uppercase tracking-[0.15em] text-dark-400">
+                    Email
+                </div>
+                <div class="col-span-2 text-xs font-semibold uppercase tracking-[0.15em] text-dark-400 text-center">
+                    Orders
+                </div>
+                <div class="col-span-2 text-xs font-semibold uppercase tracking-[0.15em] text-dark-400 text-center">
+                    Cart Items
+                </div>
+            </div>
+
+            <!-- Customer Rows -->
+            <% users.forEach(function(user, index) { %>
+                <div class="group md:grid md:grid-cols-12 gap-4 items-center px-6 py-5 border-b border-gray-50 last:border-b-0 hover:bg-brand-50/30 transition-colors duration-200">
+
+                    <!-- Avatar + Name -->
+                    <div class="col-span-5 flex items-center gap-4 mb-3 md:mb-0">
+                        <!-- Avatar circle with first letter -->
+                        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center flex-shrink-0 shadow-md shadow-brand-500/20">
+                            <span class="text-white font-bold text-sm">
+                                <%= user.fullname.charAt(0).toUpperCase() %>
+                            </span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-dark-900 text-[15px] group-hover:text-brand-700 transition-colors">
+                                <%= user.fullname %>
+                            </p>
+                            <!-- Email shown on mobile below name -->
+                            <p class="md:hidden text-dark-400 text-xs mt-0.5 truncate max-w-[200px]">
+                                <%= user.email %>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Email (desktop) -->
+                    <div class="col-span-3 hidden md:block">
+                        <p class="text-dark-400 text-sm truncate" title="<%= user.email %>">
+                            <%= user.email %>
+                        </p>
+                    </div>
+
+                    <!-- Stats on mobile: inline row / on desktop: separate columns -->
+                    <div class="flex items-center gap-4 md:contents">
+
+                        <!-- Orders -->
+                        <div class="col-span-2 flex items-center gap-2 md:justify-center">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center md:bg-transparent md:w-auto md:h-auto">
+                                <i class="ri-file-list-3-line text-blue-500 text-sm"></i>
+                            </div>
+                            <span class="text-sm font-medium text-dark-700">
+                                <%= user.orders.length %>
+                            </span>
+                            <span class="text-xs text-dark-300 md:hidden">orders</span>
+                        </div>
+
+                        <!-- Cart Items -->
+                        <div class="col-span-2 flex items-center gap-2 md:justify-center">
+                            <div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center md:bg-transparent md:w-auto md:h-auto">
+                                <i class="ri-shopping-cart-line text-brand-500 text-sm"></i>
+                            </div>
+                            <span class="text-sm font-medium text-dark-700">
+                                <%= user.cart.length %>
+                            </span>
+                            <span class="text-xs text-dark-300 md:hidden">in cart</span>
+                        </div>
+
+                    </div>
+
+                </div>
+            <% }); %>
+
+        </div>
+
+    <% } else { %>
+
+        <!-- Empty State -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-20 text-center">
+
+            <div class="w-20 h-20 rounded-2xl bg-brand-50 flex items-center justify-center mx-auto mb-6">
+                <i class="ri-group-line text-4xl text-brand-400"></i>
+            </div>
+
+            <h2 class="text-2xl font-bold text-dark-900 mb-2">
+                No Customers Yet
+            </h2>
+
+            <p class="text-dark-400 text-sm max-w-md mx-auto mb-8 leading-relaxed">
+                When users register on ShopSphere, they will appear here. You'll be able to see their order history and cart activity.
+            </p>
+
+            <a href="/owners/dashboard"
+               class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white btn-primary">
+                <i class="ri-arrow-left-line"></i>
+                Back to Dashboard
+            </a>
+
+        </div>
+
+    <% } %>
+
+</div>
+
+<%- include('./partials/footer') %>

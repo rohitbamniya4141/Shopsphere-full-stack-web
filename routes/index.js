@@ -187,4 +187,31 @@ router.get('/profile', isLoggedIn, async function(req, res){
     });
 });
 
+router.get("/checkout", isLoggedIn, async function(req, res){
+
+    let user = await userModel
+        .findOne({ email: req.user.email })
+        .populate("cart");
+
+    if(user.cart.length === 0){
+        req.flash("error","Cart is empty");
+        return res.redirect("/cart");
+    }
+
+    let bill = 0;
+
+    user.cart.forEach(product=>{
+        bill += Number(product.price) - Number(product.discount || 0);
+    });
+
+    bill += 20;
+
+    res.render("checkout",{
+        user,
+        bill,
+        loggedin:true
+    });
+
+});
+
 module.exports = router;

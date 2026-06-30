@@ -17,6 +17,55 @@
         </p>
     </div>
 
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
+
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg hover:shadow-blue-500/[0.04] p-5 sm:p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Products</p>
+                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="ri-shopping-bag-3-line text-blue-500 text-lg"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-extrabold text-dark-900 tracking-tight"><%= totalProducts %></h2>
+            <p class="text-[11px] text-dark-300 mt-1.5 font-medium">Active items in catalog</p>
+        </div>
+
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg hover:shadow-green-500/[0.04] p-5 sm:p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Orders</p>
+                <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="ri-file-list-3-line text-green-500 text-lg"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-extrabold text-dark-900 tracking-tight"><%= totalOrders %></h2>
+            <p class="text-[11px] text-dark-300 mt-1.5 font-medium">Total orders placed</p>
+        </div>
+
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg hover:shadow-purple-500/[0.04] p-5 sm:p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Customers</p>
+                <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="ri-group-line text-purple-500 text-lg"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-extrabold text-dark-900 tracking-tight"><%= totalCustomers %></h2>
+            <p class="text-[11px] text-dark-300 mt-1.5 font-medium">Registered users</p>
+        </div>
+
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg hover:shadow-emerald-500/[0.04] p-5 sm:p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Revenue</p>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="ri-money-rupee-circle-line text-emerald-500 text-lg"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-extrabold text-emerald-600 tracking-tight">₹<%= revenue.toLocaleString('en-IN') %></h2>
+            <p class="text-[11px] text-dark-300 mt-1.5 font-medium">Total revenue earned</p>
+        </div>
+
+    </div>
+
     <!-- Dashboard Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 

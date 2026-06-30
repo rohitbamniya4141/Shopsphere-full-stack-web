@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const{generateToken} = require('../utils/generateToken');
 
+const userModel = require('../models/user-model');
 const isOwnerLoggedIn = require('../middlewares/isOwnerLoggedIn');
 
 
@@ -153,11 +154,53 @@ router.post('/edit/:id', isOwnerLoggedIn, async function(req, res){
 
 router.get("/dashboard", isOwnerLoggedIn, async (req, res) => {
 
+    const totalProducts = await productModel.countDocuments();
+    const totalOrders = await orderModel.countDocuments();
+    const totalCustomers = await userModel.countDocuments();
+
+    const orders = await orderModel.find();
+    const revenue = orders.reduce((sum, order) => {
+        return sum + order.totalAmount;
+    }, 0);
+
     res.render("owner-dashboard",{
         loggedin:true,
-        isAdmin:true
+        isAdmin:true,
+        totalProducts,
+        totalOrders,
+        totalCustomers,
+        revenue
     });
 
+});
+
+router.get('/products', isOwnerLoggedIn, async function(req, res){
+    let success = req.flash("success");
+    const products = await productModel.find().sort({ createdAt: -1 });
+    res.render('admin-products', {
+        products,
+        success,
+        loggedin: true
+    });
+});
+
+router.get('/orders', isOwnerLoggedIn, async function(req, res){
+    const orders = await orderModel.find()
+        .populate('user')
+        .populate('products')
+        .sort({ createdAt: -1 });
+    res.render('admin-orders', {
+        orders,
+        loggedin: true
+    });
+});
+
+router.get('/users', isOwnerLoggedIn, async function(req, res){
+    const users = await userModel.find().select('-password');
+    res.render('admin-customers', {
+        users,
+        loggedin: true
+    });
 });
 
 router.get('/logout', (req, res) => {

@@ -1,0 +1,251 @@
+<%- include('./partials/admin-header') %>
+
+    <!-- Flash Success -->
+    <% if(success.length > 0){ %>
+        <div class="flash-message fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-2xl bg-emerald-500/95 backdrop-blur-md shadow-2xl shadow-emerald-500/25">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <i class="ri-check-line text-white text-lg"></i>
+                </div>
+                <span class="text-white text-sm font-semibold tracking-wide"><%= success %></span>
+            </div>
+        </div>
+    <% } %>
+
+    <div class="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 lg:px-16 xl:px-20 py-8 md:py-12">
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
+
+            <!-- Admin Sidebar -->
+            <aside class="hidden lg:block w-[260px] flex-shrink-0">
+                <div class="bg-white rounded-2xl border border-gray-100/80 shadow-lg shadow-black/[0.03] p-6 sticky top-24">
+                    <div class="flex items-center gap-3.5 mb-6 pb-6 border-b border-gray-100">
+                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-md shadow-brand-500/20">
+                            <i class="ri-settings-3-line text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-dark-900 tracking-tight">Admin Panel</h3>
+                            <p class="text-[11px] text-dark-400 mt-0.5">Manage your store</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <a href="/owners/admin" class="flex items-center gap-3 px-4 py-3 rounded-xl text-dark-500 hover:bg-gray-50 hover:text-dark-700 text-sm font-medium transition-all duration-200">
+                            <i class="ri-add-circle-line text-base"></i> Create Product
+                        </a>
+                        <a href="/owners/products" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-brand-50 to-brand-100/50 text-brand-700 text-sm font-semibold border border-brand-200/40 shadow-sm shadow-brand-500/5 transition-all">
+                            <i class="ri-list-check-2 text-base"></i> All Products
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-dark-500 hover:bg-gray-50 hover:text-dark-700 text-sm font-medium transition-all duration-200">
+                            <i class="ri-bar-chart-box-line text-base"></i> Analytics
+                        </a>
+                    </div>
+
+                    <div class="mt-6 pt-5 border-t border-gray-100">
+                        <a href="/shop" class="flex items-center gap-2 text-xs text-dark-400 hover:text-brand-600 transition-colors font-medium">
+                            <i class="ri-arrow-left-s-line"></i> Back to Store
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 min-w-0 animate-fade-in-up">
+
+                <!-- Page Header -->
+                <div class="mb-8">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <div class="w-1.5 h-6 rounded-full bg-gradient-to-b from-brand-400 to-brand-600"></div>
+                        <p class="text-brand-600 text-xs font-bold uppercase tracking-[0.15em]">Product Management</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl lg:text-[2rem] font-serif font-bold text-dark-900 tracking-tight leading-tight flex items-center gap-3">
+                                All Products
+                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-bold border border-brand-200/50">
+                                    <%= products.length %>
+                                </span>
+                            </h1>
+                            <p class="text-dark-400 text-sm mt-1.5 leading-relaxed">Manage and organize your product catalog</p>
+                        </div>
+                        <a href="/owners/admin"
+                            class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl btn-primary text-white text-sm font-bold tracking-wide flex-shrink-0">
+                            <i class="ri-add-line text-base"></i>
+                            Add Product
+                        </a>
+                    </div>
+                </div>
+
+                <% if(products.length > 0){ %>
+
+                    <!-- Desktop Table View -->
+                    <div class="hidden md:block bg-white rounded-2xl border border-gray-100/80 shadow-lg shadow-black/[0.03] overflow-hidden">
+
+                        <!-- Table Header -->
+                        <div class="px-6 py-4 border-b border-gray-100/80 bg-gradient-to-r from-gray-50/50 to-white">
+                            <div class="grid grid-cols-12 gap-4 items-center">
+                                <div class="col-span-5">
+                                    <p class="text-[11px] font-bold text-dark-400 uppercase tracking-[0.12em]">Product</p>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <p class="text-[11px] font-bold text-dark-400 uppercase tracking-[0.12em]">Price</p>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <p class="text-[11px] font-bold text-dark-400 uppercase tracking-[0.12em]">Discount</p>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <p class="text-[11px] font-bold text-dark-400 uppercase tracking-[0.12em]">Created</p>
+                                </div>
+                                <div class="col-span-1 text-right">
+                                    <p class="text-[11px] font-bold text-dark-400 uppercase tracking-[0.12em]">Actions</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table Body -->
+                        <div class="divide-y divide-gray-50">
+                            <% products.forEach(function(product, index){ %>
+                                <div class="group px-6 py-4 hover:bg-brand-50/20 transition-colors duration-200">
+                                    <div class="grid grid-cols-12 gap-4 items-center">
+
+                                        <!-- Product Info -->
+                                        <div class="col-span-5 flex items-center gap-4">
+                                            <div class="w-14 h-14 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow duration-300"
+                                                style="background:<%= product.bgcolor %>">
+                                                <img class="h-10 object-contain group-hover:scale-105 transition-transform duration-300"
+                                                    src="data:image/jpeg;base64,<%= product.image.toString('base64') %>">
+                                            </div>
+                                            <div class="min-w-0">
+                                                <h3 class="font-bold text-sm text-dark-900 tracking-tight truncate"><%= product.name %></h3>
+                                                <p class="text-[11px] text-dark-300 mt-0.5 font-medium">ID: <%= product._id.toString().slice(-8) %></p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="col-span-2 text-center">
+                                            <span class="text-sm font-bold text-dark-900">₹<%= product.price %></span>
+                                        </div>
+
+                                        <!-- Discount -->
+                                        <div class="col-span-2 text-center">
+                                            <% if(product.discount > 0){ %>
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold">
+                                                    <i class="ri-price-tag-3-line text-[10px]"></i>
+                                                    ₹<%= product.discount %>
+                                                </span>
+                                            <% } else { %>
+                                                <span class="text-dark-300 text-sm">—</span>
+                                            <% } %>
+                                        </div>
+
+                                        <!-- Created Date -->
+                                        <div class="col-span-2 text-center">
+                                            <span class="text-xs text-dark-400 font-medium"><%= new Date(product.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+                                        </div>
+
+                                        <!-- Actions -->
+                                        <div class="col-span-1 flex items-center justify-end gap-2">
+                                            <a href="/owners/edit/<%= product._id %>"
+                                                class="w-9 h-9 rounded-lg bg-dark-900 hover:bg-dark-800 text-white flex items-center justify-center transition-all duration-200 hover:shadow-lg hover:shadow-dark-900/20 hover:-translate-y-0.5"
+                                                title="Edit">
+                                                <i class="ri-edit-line text-sm"></i>
+                                            </a>
+                                            <a href="/owners/delete/<%= product._id %>"
+                                                class="w-9 h-9 rounded-lg bg-white border-2 border-red-200 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 flex items-center justify-center transition-all duration-200 hover:shadow-lg hover:shadow-red-500/20 hover:-translate-y-0.5"
+                                                title="Delete">
+                                                <i class="ri-delete-bin-line text-sm"></i>
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+
+                        <!-- Table Footer -->
+                        <div class="px-6 py-4 border-t border-gray-100/80 bg-gradient-to-r from-gray-50/30 to-white">
+                            <p class="text-[11px] text-dark-300 font-medium">
+                                Showing <span class="text-dark-600 font-semibold"><%= products.length %></span> product<%= products.length !== 1 ? 's' : '' %>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="md:hidden space-y-3">
+                        <% products.forEach(function(product){ %>
+                            <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg hover:shadow-black/[0.05] p-4 transition-all duration-300 hover:-translate-y-0.5">
+
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm"
+                                        style="background:<%= product.bgcolor %>">
+                                        <img class="h-12 object-contain"
+                                            src="data:image/jpeg;base64,<%= product.image.toString('base64') %>">
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <h3 class="font-bold text-base text-dark-900 tracking-tight truncate"><%= product.name %></h3>
+                                        <div class="flex items-center gap-3 mt-1">
+                                            <span class="text-sm font-bold text-dark-700">₹<%= product.price %></span>
+                                            <% if(product.discount > 0){ %>
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[11px] font-bold">
+                                                    <i class="ri-price-tag-3-line text-[9px]"></i>
+                                                    ₹<%= product.discount %>
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                        <p class="text-[11px] text-dark-300 mt-1 font-medium">
+                                            <%= new Date(product.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-2">
+                                    <a href="/owners/edit/<%= product._id %>"
+                                        class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-dark-900 hover:bg-dark-800 text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:shadow-lg hover:shadow-dark-900/20">
+                                        <i class="ri-edit-line text-sm"></i>
+                                        Edit
+                                    </a>
+                                    <a href="/owners/delete/<%= product._id %>"
+                                        class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border-2 border-red-200 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:shadow-lg hover:shadow-red-500/20">
+                                        <i class="ri-delete-bin-line text-sm"></i>
+                                        Delete
+                                    </a>
+                                </div>
+
+                            </div>
+                        <% }) %>
+
+                        <!-- Mobile Footer -->
+                        <div class="text-center pt-2">
+                            <p class="text-[11px] text-dark-300 font-medium">
+                                Showing <span class="text-dark-600 font-semibold"><%= products.length %></span> product<%= products.length !== 1 ? 's' : '' %>
+                            </p>
+                        </div>
+                    </div>
+
+                <% } else { %>
+
+                    <!-- Empty State -->
+                    <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-12 sm:p-16 text-center">
+                        <div class="max-w-sm mx-auto">
+                            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center mx-auto mb-6 shadow-sm">
+                                <i class="ri-shopping-bag-3-line text-4xl text-brand-400"></i>
+                            </div>
+                            <h2 class="text-2xl font-serif font-bold text-dark-900 tracking-tight mb-3">No Products Yet</h2>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-8">
+                                Your product catalog is empty. Start building your store by adding your first product — it only takes a moment.
+                            </p>
+                            <a href="/owners/admin"
+                                class="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl btn-primary text-white text-sm font-bold tracking-wide">
+                                <i class="ri-add-line text-base"></i>
+                                Create First Product
+                            </a>
+                            <p class="text-[11px] text-dark-300 mt-4 font-medium">Add images, pricing, and custom colors</p>
+                        </div>
+                    </div>
+
+                <% } %>
+
+            </main>
+        </div>
+    </div>
+
+<%- include('./partials/footer') %>

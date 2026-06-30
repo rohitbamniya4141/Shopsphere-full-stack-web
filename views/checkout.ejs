@@ -1,0 +1,225 @@
+<%- include("./partials/header") %>
+
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+    <h1 class="text-4xl font-bold mb-8">
+        Checkout
+    </h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Left Section -->
+        <div class="lg:col-span-2">
+
+            <!-- Shipping Address -->
+            <div class="bg-white rounded-xl shadow p-6">
+
+                <h2 class="text-2xl font-semibold mb-4">
+                    Shipping Address
+                </h2>
+
+                <p class="text-gray-700">
+                    <strong><%= user.fullname %></strong>
+                </p>
+
+                <p class="text-gray-500 mt-2">
+                    Address feature will be added soon.
+                </p>
+
+            </div>
+
+            <!-- Products -->
+            <div class="bg-white rounded-xl shadow p-6 mt-6">
+
+                <h2 class="text-2xl font-semibold mb-6">
+                    Order Items
+                </h2>
+
+                <% user.cart.forEach(function(product){ %>
+
+                    <div class="flex justify-between items-center border-b py-4">
+
+                        <div>
+
+                            <h3 class="font-semibold text-lg">
+                                <%= product.name %>
+                            </h3>
+
+                            <p class="text-gray-500">
+                                Discount : ₹<%= product.discount %>
+                            </p>
+
+                        </div>
+
+                        <div class="font-bold text-xl">
+
+                            ₹<%= product.price - product.discount %>
+
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        </div>
+
+        <!-- Right Section -->
+        <div>
+
+            <div class="bg-white rounded-xl shadow p-6 sticky top-28">
+
+                <h2 class="text-2xl font-bold mb-6">
+                    Order Summary
+                </h2>
+
+                <div class="flex justify-between mb-3">
+
+                    <span>Items</span>
+
+                    <span>
+                        <%= user.cart.length %>
+                    </span>
+
+                </div>
+
+                <div class="flex justify-between mb-3">
+
+                    <span>Platform Fee</span>
+
+                    <span>₹20</span>
+
+                </div>
+
+                <hr class="my-4">
+
+                <div class="flex justify-between text-2xl font-bold">
+
+                    <span>Total</span>
+
+                    <span>₹<%= bill %></span>
+
+                </div>
+
+                <button
+                    id="pay-btn"
+                    class="w-full mt-8 bg-black text-white py-4 rounded-lg hover:bg-gray-800 transition">
+
+                    Proceed To Payment
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+document.getElementById("pay-btn").addEventListener("click", async () => {
+
+    try {
+
+        const response = await fetch("/payment/create-order", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            return alert(data.message);
+        }
+
+        const options = {
+
+            key: data.key,
+
+            amount: data.order.amount,
+
+            currency: data.order.currency,
+
+            name: "ShopSphere",
+
+            description: "Premium Bag Purchase",
+
+            order_id: data.order.id,
+
+            prefill: {
+                name: "<%= user.fullname %>",
+                email: "<%= user.email %>"
+            },
+
+            modal: {
+                ondismiss: function () {
+                    alert("Payment Cancelled");
+                }
+            },
+
+            handler: async function (response) {
+
+                const verify = await fetch("/payment/verify-payment", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        razorpay_order_id: response.razorpay_order_id,
+
+                        razorpay_payment_id: response.razorpay_payment_id,
+
+                        razorpay_signature: response.razorpay_signature
+
+                    })
+
+                });
+
+                const result = await verify.json();
+
+                if(result.success){
+
+                    window.location.href = result.redirect;
+
+                }else{
+
+                    alert(result.message);
+
+                }
+
+            },
+
+            theme: {
+                color: "#D4882E"
+            }
+
+        };
+
+        const rzp = new Razorpay(options);
+
+        rzp.open();
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert("Something went wrong");
+
+    }
+
+});
+
+</script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<%- include("./partials/footer") %>
