@@ -45,4 +45,8 @@ app.use(function(req, res){
     res.status(404).render('404', { loggedin: false });
 });
 
-app.listen(3000);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
