@@ -2,6 +2,7 @@ const razorpayInstance = require("../config/razorpay.config");
 const crypto = require("crypto");
 const orderModel = require("../models/order-model");
 const userModel = require("../models/user-model");
+const productModel = require("../models/product-model");
 
 exports.createOrder = async (req, res) => {
 
@@ -16,6 +17,16 @@ exports.createOrder = async (req, res) => {
                 success: false,
                 message: "Cart is empty"
             });
+        }
+
+        // Check stock availability
+        for (let product of user.cart) {
+            if (product.stock <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `${product.name} is out of stock`
+                });
+            }
         }
 
         let totalAmount = 0;
@@ -92,6 +103,14 @@ exports.verifyPayment = async (req, res) => {
             return sum + (product.price - product.discount);
         }, 20);
 
+        const purchasedItems = user.cart.map(product => ({
+            product: product._id,
+            price: product.price,
+            discount: product.discount || 0,
+            seller: product.seller,
+            qty: 1
+        }));
+
         // 3. Order save karo
         const order = await orderModel.create({
 
@@ -99,19 +118,36 @@ exports.verifyPayment = async (req, res) => {
 
             products: user.cart.map(product => product._id),
 
+            purchasedItems: purchasedItems,
+
             totalAmount,
 
-            status: "Paid"
+            status: "Payment Confirmed",
+
+            paymentId: razorpay_payment_id,
+
+            statusHistory: [
+                { status: 'Pending', date: new Date() },
+                { status: 'Payment Confirmed', date: new Date() }
+            ]
 
         });
+
+        // 4. Reduce stock for each purchased product
+        for (let product of user.cart) {
+            await productModel.findByIdAndUpdate(product._id, {
+                $inc: { stock: -1 }
+            });
+        }
+
 // user order array m save
          user.orders.push(order._id);
-        // 4. Cart empty karo
+        // 5. Cart empty karo
         user.cart = [];
 
         await user.save();
 
-        // 5. Response bhejo
+        // 6. Response bhejo
         return res.json({
 
             success: true,

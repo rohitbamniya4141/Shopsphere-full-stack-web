@@ -29,7 +29,7 @@ module.exports.registerUser = async function(req, res){
         });
                     
         let token = generateToken(createdUser);
-        res.cookie("token", token);
+        res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production" });
         res.redirect("/shop");
     }catch(err){
         console.log(err.message);
@@ -56,7 +56,7 @@ module.exports.loginUser = async function(req, res){
         let result = await bcrypt.compare(password, user.password);
         if(result){
             let token = generateToken(user);
-            res.cookie("token", token);
+            res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production" });
             res.redirect("/shop");
         }
         else{

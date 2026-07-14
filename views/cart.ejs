@@ -57,8 +57,7 @@
                                 <!-- Product Image -->
                                 <div class="sm:w-52 h-52 sm:h-auto flex items-center justify-center flex-shrink-0 p-8 relative overflow-hidden" style="background-color: <%= item.bgcolor %>">
                                     <img class="h-36 object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-500"
-                                         src="data:image/<%= item.image[0] === 0xFF ? 'jpeg' : item.image[0] === 0x89 ? 'png' : item.image.toString('utf8').includes('<svg') ? 'svg+xml' : 'jpeg' %>;base64,<%= item.image.toString('base64') %>"
-                                         alt="<%= item.name %>">
+                                         src="<%= item.image %>" alt="<%= item.name %>">
                                     <!-- Subtle shine overlay on hover -->
                                     <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                                 </div>

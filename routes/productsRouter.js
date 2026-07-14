@@ -6,13 +6,19 @@ const productModel = require('../models/product-model');
 const isOwnerLoggedIn = require('../middlewares/isOwnerLoggedIn');
 
 router.post('/create', isOwnerLoggedIn, upload.single('image'), async function(req, res){
-    let {name,price, discount, bgcolor, panelcolor, textcolor} = req.body;
+    let {name,price, discount, category, stock, bgcolor, panelcolor, textcolor} = req.body;
     try{
+        let imageString = '';
+        if (req.file) {
+            imageString = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        }
         let product = await productModel.create({
-        image: req.file.buffer,
+        image: imageString,
         name,
         price,
         discount,
+        category: category || 'General',
+        stock: stock || 0,
         bgcolor,
         panelcolor,
         textcolor

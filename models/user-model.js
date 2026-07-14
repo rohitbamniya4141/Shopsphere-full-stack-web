@@ -11,6 +11,13 @@ const userSchema = mongoose.Schema({
             }],
         default: []
       },
+    wishlist: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'products'
+        }],
+        default: []
+    },
     orders: {
       type: [{
           type: mongoose.Schema.Types.ObjectId,

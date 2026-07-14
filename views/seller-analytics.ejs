@@ -1,0 +1,181 @@
+<%- include('./partials/seller-header') %>
+
+<div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10 sm:py-14 animate-fade-in-up">
+
+    <!-- Page Header -->
+    <div class="mb-10">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-1.5 h-8 rounded-full bg-gradient-to-b from-brand-500 to-brand-700"></div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-dark-900 tracking-tight">Store Analytics</h1>
+        </div>
+        <p class="text-dark-400 text-sm ml-5 sm:ml-6">
+            Track your store performance and revenue insights.
+        </p>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Total Revenue</p>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="ri-money-rupee-circle-line text-emerald-500 text-lg"></i>
+                </div>
+            </div>
+            <h2 id="stat-revenue" class="text-3xl font-extrabold text-emerald-600 tracking-tight">₹0</h2>
+        </div>
+
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Total Orders</p>
+                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="ri-file-list-3-line text-blue-500 text-lg"></i>
+                </div>
+            </div>
+            <h2 id="stat-orders" class="text-3xl font-extrabold text-dark-900 tracking-tight">0</h2>
+        </div>
+
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Avg Order Value</p>
+                <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="ri-bar-chart-box-line text-purple-500 text-lg"></i>
+                </div>
+            </div>
+            <h2 id="stat-avg" class="text-3xl font-extrabold text-dark-900 tracking-tight">₹0</h2>
+        </div>
+
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+        <!-- Monthly Revenue -->
+        <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-6">
+            <h3 class="text-sm font-bold text-dark-900 mb-4 uppercase tracking-wider">Monthly Revenue</h3>
+            <div class="relative h-[280px]">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Monthly Orders -->
+        <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-6">
+            <h3 class="text-sm font-bold text-dark-900 mb-4 uppercase tracking-wider">Monthly Orders</h3>
+            <div class="relative h-[280px]">
+                <canvas id="ordersChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Category Distribution -->
+    <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-6 max-w-md mx-auto">
+        <h3 class="text-sm font-bold text-dark-900 mb-4 uppercase tracking-wider text-center">Category Distribution</h3>
+        <div class="relative h-[280px]">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    async function loadAnalytics() {
+        try {
+            const res = await fetch('/sellers/api/analytics');
+            const data = await res.json();
+
+            // Summary stats
+            document.getElementById('stat-revenue').textContent = '₹' + (data.totalRevenue || 0).toLocaleString('en-IN');
+            document.getElementById('stat-orders').textContent = data.totalOrders || 0;
+            document.getElementById('stat-avg').textContent = '₹' + (data.avgOrderValue || 0).toLocaleString('en-IN');
+
+            const brandColor = '#d4882e';
+            const brandLight = 'rgba(212, 136, 46, 0.15)';
+
+            // Revenue Chart
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'line',
+                data: {
+                    labels: data.monthlyLabels,
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: data.monthlyRevenue,
+                        borderColor: brandColor,
+                        backgroundColor: brandLight,
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: brandColor,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Orders Chart
+            new Chart(document.getElementById('ordersChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.monthlyLabels,
+                    datasets: [{
+                        label: 'Orders',
+                        data: data.monthlyOrders,
+                        backgroundColor: brandColor,
+                        borderRadius: 8,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.04)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Category Chart
+            const catColors = ['#d4882e', '#e0a050', '#10b981', '#6366f1', '#f43f5e', '#06b6d4'];
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.categoryLabels,
+                    datasets: [{
+                        data: data.categorySales,
+                        backgroundColor: catColors.slice(0, data.categoryLabels.length),
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 11 } } }
+                    }
+                }
+            });
+
+        } catch (err) {
+            console.error('Failed to load analytics:', err);
+        }
+    }
+
+    loadAnalytics();
+</script>
+
+<%- include('./partials/footer') %>

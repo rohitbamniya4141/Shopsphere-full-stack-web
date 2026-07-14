@@ -1,0 +1,105 @@
+<%- include('./partials/seller-header') %>
+
+    <div class="max-w-5xl mx-auto px-5 sm:px-8 lg:px-12 py-10 sm:py-14 animate-fade-in-up">
+
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center gap-2.5 mb-3">
+                <div class="w-1.5 h-6 rounded-full bg-gradient-to-b from-brand-400 to-brand-600"></div>
+                <p class="text-brand-600 text-xs font-bold uppercase tracking-[0.15em]">Seller Panel</p>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-serif font-bold text-dark-900 tracking-tight leading-tight">Edit Product</h1>
+            <p class="text-dark-400 text-sm mt-1.5 leading-relaxed">Update details for <strong><%= product.name %></strong></p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-2xl shadow-lg shadow-black/[0.04] border border-gray-100/80 p-7 sm:p-10">
+            <form autocomplete="off" action="/sellers/products/edit/<%= product._id %>" method="post" class="space-y-6">
+
+                <!-- Product Name -->
+                <div>
+                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Product Name</label>
+                    <input class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 placeholder-dark-300 text-sm font-medium"
+                        type="text" name="name" value="<%= product.name %>" required>
+                </div>
+
+                <!-- Price + Discount -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Price (₹)</label>
+                        <input class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 placeholder-dark-300 text-sm font-medium"
+                            type="number" name="price" value="<%= product.price %>" required>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Discount (₹)</label>
+                        <input class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 placeholder-dark-300 text-sm font-medium"
+                            type="number" name="discount" value="<%= product.discount || 0 %>">
+                    </div>
+                </div>
+
+                <!-- Category + Stock -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Category</label>
+                        <select name="category" class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium cursor-pointer">
+                            <% ['Backpacks','Laptop Bags','Travel Bags','Office Bags','Tote & Sling Bags','General'].forEach(function(cat){ %>
+                                <option value="<%= cat %>" <%= product.category === cat ? 'selected' : '' %>><%= cat %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Stock</label>
+                        <input class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 placeholder-dark-300 text-sm font-medium"
+                            type="number" name="stock" value="<%= product.stock || 0 %>">
+                    </div>
+                </div>
+
+                <!-- Image URL -->
+                <div>
+                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Image URL Path</label>
+                    <input class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 placeholder-dark-300 text-sm font-medium"
+                        type="text" name="image" value="<%= product.image || '' %>">
+                    <p class="text-[10px] text-dark-300 mt-1.5">Enter the image path relative to /public folder</p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Description</label>
+                    <textarea class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 placeholder-dark-300 text-sm font-medium resize-none"
+                        rows="4" name="description"><%= product.description || '' %></textarea>
+                </div>
+
+                <!-- Colors -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div>
+                        <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Background Color</label>
+                        <input class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium"
+                            type="text" name="bgcolor" value="<%= product.bgcolor || '#F3F4F6' %>">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Panel Color</label>
+                        <input class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium"
+                            type="text" name="panelcolor" value="<%= product.panelcolor || '#FFFFFF' %>">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Text Color</label>
+                        <input class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium"
+                            type="text" name="textcolor" value="<%= product.textcolor || '#111827' %>">
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="pt-3 flex items-center gap-4">
+                    <button type="submit" class="btn-primary text-white font-bold py-4 px-10 rounded-xl text-sm tracking-wide flex items-center justify-center gap-2.5">
+                        <i class="ri-save-line text-lg"></i>
+                        Update Product
+                    </button>
+                    <a href="/sellers/products" class="text-dark-400 hover:text-dark-600 text-sm font-medium transition-colors">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+<%- include('./partials/footer') %>

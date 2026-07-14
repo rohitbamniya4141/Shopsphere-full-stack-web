@@ -153,6 +153,23 @@
                                     <input name="discount" type="text" placeholder="e.g. 200"
                                         class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 placeholder-dark-300 text-sm font-medium">
                                 </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Category</label>
+                                    <select name="category" class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium">
+                                        <option value="General">General</option>
+                                        <option value="Handbags">Handbags</option>
+                                        <option value="Backpacks">Backpacks</option>
+                                        <option value="Clutches">Clutches</option>
+                                        <option value="Tote Bags">Tote Bags</option>
+                                        <option value="Crossbody">Crossbody</option>
+                                        <option value="Wallets">Wallets</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Stock Quantity</label>
+                                    <input name="stock" type="number" placeholder="e.g. 25" min="0"
+                                        class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 placeholder-dark-300 text-sm font-medium">
+                                </div>
                             </div>
                         </div>
 
@@ -226,7 +243,7 @@
                                         style="background:<%= product.bgcolor %>">
                                         <img
                                             class="h-12 sm:h-16 object-contain group-hover:scale-105 transition-transform duration-300"
-                                            src="data:image/jpeg;base64,<%= product.image.toString('base64') %>">
+                                            src="<%= product.image %>" alt="<%= product.name %>">
                                     </div>
 
                                     <div>

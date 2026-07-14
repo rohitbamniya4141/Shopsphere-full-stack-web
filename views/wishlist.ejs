@@ -1,0 +1,84 @@
+<%- include('./partials/header') %>
+
+    <div class="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-12">
+
+        <!-- Page Header -->
+        <div class="mb-10 animate-fade-in-up">
+            <h1 class="text-3xl md:text-4xl font-serif font-bold text-dark-900 tracking-tight">My Wishlist</h1>
+            <p class="text-dark-400 text-sm mt-2 tracking-wide">Products you've saved for later</p>
+        </div>
+
+        <% if(!user.wishlist || user.wishlist.length === 0){ %>
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center py-28 animate-fade-in-up">
+                <div class="w-28 h-28 rounded-full bg-gradient-to-br from-red-50 to-red-100/50 flex items-center justify-center mb-8">
+                    <i class="ri-heart-line text-5xl text-red-300"></i>
+                </div>
+                <h2 class="text-3xl font-serif font-semibold text-dark-800 mb-3">Your wishlist is empty</h2>
+                <p class="text-dark-400 text-sm mb-10 text-center max-w-sm leading-relaxed">Save products you love by clicking the heart icon. They'll appear here for easy access.</p>
+                <a href="/shop" class="btn-primary text-white font-semibold px-10 py-4 rounded-2xl text-sm tracking-wide inline-flex items-center gap-2.5 group">
+                    <i class="ri-shopping-bag-line group-hover:scale-110 transition-transform"></i>
+                    Explore Products
+                </a>
+            </div>
+        <% } else { %>
+
+            <!-- Wishlist Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6">
+                <% user.wishlist.forEach(function(product, index){ %>
+                    <div class="product-card group rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-100/80 animate-fade-in-up"
+                         style="animation-delay: <%= index * 0.08 %>s; opacity: 0;">
+
+                        <!-- Product Image -->
+                        <a href="/product/<%= product._id %>" class="block relative h-56 flex items-center justify-center overflow-hidden" style="background-color: <%= product.bgcolor %>">
+                            <img class="product-image h-[12rem] w-auto object-contain drop-shadow-lg"
+                                 src="<%= product.image %>" alt="<%= product.name %>"
+                                 alt="<%= product.name %>">
+
+                            <% if(product.stock <= 0){ %>
+                                <div class="absolute top-3 left-3 px-3 py-1 rounded-full bg-red-500 text-white text-[11px] font-bold shadow-lg shadow-red-500/30">
+                                    Out of Stock
+                                </div>
+                            <% } %>
+                        </a>
+
+                        <!-- Product Info -->
+                        <div class="p-5">
+                            <a href="/product/<%= product._id %>" class="block">
+                                <h3 class="font-semibold text-[15px] text-dark-900 mb-1.5 truncate hover:text-brand-600 transition-colors"><%= product.name %></h3>
+                            </a>
+                            <div class="flex items-baseline gap-2 mb-4">
+                                <span class="text-lg font-bold text-dark-900 tracking-tight">₹ <%= product.price - (product.discount || 0) %></span>
+                                <% if(product.discount > 0){ %>
+                                    <span class="text-sm line-through text-dark-300 font-medium">₹ <%= product.price %></span>
+                                <% } %>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <% if(product.stock > 0){ %>
+                                    <a href="/add-to-cart/<%= product._id %>"
+                                       class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl btn-dark text-white text-xs font-bold uppercase tracking-wider">
+                                        <i class="ri-shopping-cart-line text-sm"></i>
+                                        Add to Cart
+                                    </a>
+                                <% } else { %>
+                                    <span class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gray-100 text-dark-300 text-xs font-bold uppercase tracking-wider cursor-not-allowed">
+                                        <i class="ri-shopping-cart-line text-sm"></i>
+                                        Out of Stock
+                                    </span>
+                                <% } %>
+                                <a href="/remove-from-wishlist/<%= product._id %>"
+                                   class="w-10 h-10 flex items-center justify-center rounded-xl border-2 border-red-200 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all duration-200"
+                                   title="Remove from Wishlist">
+                                    <i class="ri-heart-fill text-base"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+
+        <% } %>
+    </div>
+
+<%- include('./partials/footer') %>

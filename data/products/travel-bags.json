@@ -1,0 +1,493 @@
+[
+  {
+    "name": "Voyager Duffel Bag",
+    "price": 1999,
+    "discount": 400,
+    "category": "Travel Bags",
+    "demographic": "Travelers",
+    "description": "A spacious premium duffel bag designed for weekend trips, gym sessions, and short vacations. Features a roomy main compartment, dedicated shoe compartment, waterproof base, reinforced grab handles, adjustable shoulder strap, and durable canvas construction for comfortable everyday travel.",
+    "rating": 4.8,
+    "reviews": 221,
+    "stock": 31,
+    "bestFor": [
+      "Gym",
+      "Travel"
+    ],
+    "color": "Black",
+    "image": "/images/products/travel-bag1.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "50L",
+      "waterResistant": false,
+      "usbCharging": false,
+      "antiTheft": false,
+      "weight": "1.3kg",
+      "material": "Canvas",
+      "shoeCompartment": true
+    }
+  },
+  {
+    "name": "Expedition Travel Duffel",
+    "price": 2499,
+    "discount": 200,
+    "category": "Travel Bags",
+    "demographic": "Travelers",
+    "description": "Built for long journeys and adventure travel, this rugged duffel features expandable storage, ballistic nylon construction, premium metal zippers, separate shoe compartment, padded shoulder strap, and multiple quick-access pockets for organized packing.",
+    "rating": 4.7,
+    "reviews": 416,
+    "stock": 9,
+    "bestFor": [
+      "Travel",
+      "Weekend Trips"
+    ],
+    "color": "Sand Beige",
+    "image": "/images/products/travel-bag2.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "50L",
+      "waterResistant": false,
+      "usbCharging": true,
+      "antiTheft": false,
+      "weight": "1.3kg",
+      "material": "Ballistic Nylon",
+      "shoeCompartment": true
+    }
+  },
+  {
+    "name": "Urban Weekender Bag",
+    "price": 2299,
+    "discount": 200,
+    "category": "Travel Bags",
+    "demographic": "Professionals",
+    "description": "A stylish rectangular weekender bag crafted with waterproof nylon and premium stitching. Includes spacious storage, luggage sleeve, organizer pockets, and comfortable carry handles, making it perfect for business trips and overnight stays.",
+    "rating": 4.4,
+    "reviews": 666,
+    "stock": 7,
+    "bestFor": [
+      "Cabin Luggage",
+      "Office"
+    ],
+    "color": "Charcoal Grey",
+    "image": "/images/products/travel-bag3.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "55L",
+      "waterResistant": false,
+      "usbCharging": true,
+      "antiTheft": false,
+      "weight": "1.1kg",
+      "material": "Waterproof Nylon",
+      "shoeCompartment": true
+    }
+  },
+  {
+    "name": "Explorer Cabin Bag",
+    "price": 2999,
+    "discount": 200,
+    "category": "Travel Bags",
+    "demographic": "Business Travelers",
+    "description": "A compact airline-friendly cabin bag designed to fit overhead compartments. Features a padded laptop compartment, trolley sleeve, RFID-safe pocket, premium polyester construction, and organized storage for business travelers.",
+    "rating": 4.6,
+    "reviews": 700,
+    "stock": 6,
+    "bestFor": [
+      "Cabin Luggage",
+      "Office"
+    ],
+    "color": "Dark Grey",
+    "image": "/images/products/travel-bag4.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "35L",
+      "waterResistant": false,
+      "usbCharging": false,
+      "antiTheft": true,
+      "weight": "950g",
+      "material": "Premium Polyester",
+      "shoeCompartment": false
+    }
+  },
+  {
+    "name": "TrailMaster Duffel",
+    "price": 2799,
+    "discount": 500,
+    "category": "Travel Bags",
+    "demographic": "Adventure Travelers",
+    "description": "Designed for trekking and outdoor adventures, this rugged duffel includes compression straps, reinforced stitching, waterproof exterior, breathable shoe compartment, and heavy-duty construction built for demanding travel conditions.",
+    "rating": 4.7,
+    "reviews": 285,
+    "stock": 6,
+    "bestFor": [
+      "Travel",
+      "Weekend Trips"
+    ],
+    "color": "Charcoal Grey",
+    "image": "/images/products/travel-bag5.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "50L",
+      "waterResistant": true,
+      "usbCharging": true,
+      "antiTheft": true,
+      "weight": "1.3kg",
+      "material": "Waterproof Nylon",
+      "shoeCompartment": false
+    }
+  },
+  {
+    "name": "Metro Weekender",
+    "price": 2399,
+    "discount": 100,
+    "category": "Travel Bags",
+    "demographic": "Office Professionals",
+    "description": "A premium leather-look travel bag featuring a structured rectangular design, spacious packing area, luggage sleeve, premium carry handles, and elegant styling for professionals and frequent business travelers.",
+    "rating": 4.5,
+    "reviews": 435,
+    "stock": 16,
+    "bestFor": [
+      "Cabin Luggage",
+      "Office"
+    ],
+    "color": "Dark Grey",
+    "image": "/images/products/travel-bag6.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "55L",
+      "waterResistant": false,
+      "usbCharging": true,
+      "antiTheft": false,
+      "weight": "950g",
+      "material": "PU Leather",
+      "shoeCompartment": false
+    }
+  },
+  {
+    "name": "Journey Pro Travel Bag",
+    "price": 3199,
+    "discount": 500,
+    "category": "Travel Bags",
+    "demographic": "Frequent Travelers",
+    "description": "A modern travel bag with expandable storage, multiple zip compartments, hidden anti-theft pocket, waterproof fabric, ergonomic shoulder strap, and practical organization for frequent travelers.",
+    "rating": 4.4,
+    "reviews": 129,
+    "stock": 11,
+    "bestFor": [
+      "Gym",
+      "Travel"
+    ],
+    "color": "Olive Green",
+    "image": "/images/products/travel-bag7.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "45L",
+      "waterResistant": false,
+      "usbCharging": false,
+      "antiTheft": false,
+      "weight": "1.3kg",
+      "material": "Ballistic Nylon",
+      "shoeCompartment": true
+    }
+  },
+  {
+    "name": "Aero Cabin Duffel",
+    "price": 2899,
+    "discount": 400,
+    "category": "Travel Bags",
+    "demographic": "Flight Travelers",
+    "description": "A lightweight cabin duffel featuring premium waterproof fabric, adjustable shoulder strap, trolley sleeve, organized interior compartments, and compact dimensions ideal for airline travel.",
+    "rating": 4.7,
+    "reviews": 705,
+    "stock": 23,
+    "bestFor": [
+      "Travel",
+      "Weekend Trips"
+    ],
+    "color": "Olive Green",
+    "image": "/images/products/travel-bag8.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "50L",
+      "waterResistant": true,
+      "usbCharging": false,
+      "antiTheft": false,
+      "weight": "1.1kg",
+      "material": "Waterproof Nylon",
+      "shoeCompartment": true
+    }
+  },
+  {
+    "name": "Nomad Travel Bag",
+    "price": 2699,
+    "discount": 300,
+    "category": "Travel Bags",
+    "demographic": "Backpackers",
+    "description": "Built for explorers and backpackers, this spacious travel bag combines weather-resistant construction, reinforced handles, compression straps, and multiple storage compartments for outdoor adventures.",
+    "rating": 4.6,
+    "reviews": 304,
+    "stock": 16,
+    "bestFor": [
+      "Road Trips",
+      "Outdoor"
+    ],
+    "color": "Sand Beige",
+    "image": "/images/products/travel-bag9.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "35L",
+      "waterResistant": true,
+      "usbCharging": true,
+      "antiTheft": false,
+      "weight": "1.1kg",
+      "material": "Premium Polyester",
+      "shoeCompartment": false
+    }
+  },
+  {
+    "name": "Elite Weekender",
+    "price": 3499,
+    "discount": 100,
+    "category": "Travel Bags",
+    "demographic": "Business Users",
+    "description": "A luxury weekender bag crafted using premium materials with elegant detailing, waterproof lining, spacious interior, luggage sleeve, and sophisticated styling for executive travelers.",
+    "rating": 4.6,
+    "reviews": 564,
+    "stock": 13,
+    "bestFor": [
+      "Road Trips",
+      "Outdoor"
+    ],
+    "color": "Sand Beige",
+    "image": "/images/products/travel-bag10.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "35L",
+      "waterResistant": true,
+      "usbCharging": true,
+      "antiTheft": false,
+      "weight": "1.1kg",
+      "material": "Ballistic Nylon",
+      "shoeCompartment": false
+    }
+  },
+  {
+    "name": "Active Gym Duffel",
+    "price": 1799,
+    "discount": 200,
+    "category": "Travel Bags",
+    "demographic": "Gym Users",
+    "description": "A sporty duffel featuring a ventilated shoe compartment, wet pocket, bottle holder, reinforced base, and adjustable shoulder strap, making it ideal for workouts and weekend travel.",
+    "rating": 5,
+    "reviews": 423,
+    "stock": 43,
+    "bestFor": [
+      "Cabin Luggage",
+      "Office"
+    ],
+    "color": "Olive Green",
+    "image": "/images/products/travel-bag11.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "35L",
+      "waterResistant": true,
+      "usbCharging": true,
+      "antiTheft": false,
+      "weight": "850g",
+      "material": "Premium Polyester",
+      "shoeCompartment": false
+    }
+  },
+  {
+    "name": "FitCarry Sports Bag",
+    "price": 1899,
+    "discount": 400,
+    "category": "Travel Bags",
+    "demographic": "Gym + Travel",
+    "description": "A lightweight sports travel bag with dedicated shoe storage, water-resistant fabric, front organizer pocket, reinforced carry handles, and spacious compartments for gym gear and travel essentials.",
+    "rating": 4.4,
+    "reviews": 727,
+    "stock": 38,
+    "bestFor": [
+      "Business Travel",
+      "Flight"
+    ],
+    "color": "Navy Blue",
+    "image": "/images/products/travel-bag12.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "55L",
+      "waterResistant": false,
+      "usbCharging": true,
+      "antiTheft": true,
+      "weight": "1.1kg",
+      "material": "Ballistic Nylon",
+      "shoeCompartment": true
+    }
+  },
+  {
+    "name": "PowerMove Duffel",
+    "price": 2199,
+    "discount": 100,
+    "category": "Travel Bags",
+    "demographic": "Students & Travelers",
+    "description": "A versatile duffel built for students and travelers with expandable storage, anti-theft pocket, premium polyester construction, durable zippers, and smart organization for everyday use.",
+    "rating": 4.3,
+    "reviews": 846,
+    "stock": 10,
+    "bestFor": [
+      "Cabin Luggage",
+      "Office"
+    ],
+    "color": "Olive Green",
+    "image": "/images/products/travel-bag13.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "50L",
+      "waterResistant": false,
+      "usbCharging": true,
+      "antiTheft": true,
+      "weight": "1.3kg",
+      "material": "Waterproof Nylon",
+      "shoeCompartment": false
+    }
+  },
+  {
+    "name": "Premium Expedition Bag",
+    "price": 3799,
+    "discount": 300,
+    "category": "Travel Bags",
+    "demographic": "Professionals",
+    "description": "A professional-grade expedition bag featuring waterproof construction, separate shoe compartment, expandable storage, trolley sleeve, reinforced handles, and premium travel-focused organization.",
+    "rating": 4.2,
+    "reviews": 572,
+    "stock": 41,
+    "bestFor": [
+      "Cabin Luggage",
+      "Office"
+    ],
+    "color": "Charcoal Grey",
+    "image": "/images/products/travel-bag14.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "50L",
+      "waterResistant": false,
+      "usbCharging": false,
+      "antiTheft": false,
+      "weight": "950g",
+      "material": "Ballistic Nylon",
+      "shoeCompartment": true
+    }
+  },
+  {
+    "name": "Ultimate Voyager Bag",
+    "price": 3999,
+    "discount": 500,
+    "category": "Travel Bags",
+    "demographic": "Premium Travelers",
+    "description": "A flagship luxury travel bag offering a spacious interior, waterproof canvas construction, premium metal hardware, hidden valuables pocket, luggage sleeve, reinforced handles, and sophisticated modern styling.",
+    "rating": 4.9,
+    "reviews": 295,
+    "stock": 37,
+    "bestFor": [
+      "Business Travel",
+      "Flight"
+    ],
+    "color": "Forest Green",
+    "image": "/images/products/travel-bag17.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "45L",
+      "waterResistant": true,
+      "usbCharging": false,
+      "antiTheft": false,
+      "weight": "850g",
+      "material": "Canvas",
+      "shoeCompartment": false
+    }
+  },
+  {
+    "name": "Ladakh Terrain Rider",
+    "price": 4599,
+    "discount": 500,
+    "category": "Travel Bags",
+    "demographic": "Bikers & Adventurers",
+    "description": "Engineered exclusively for motorcycle expeditions like Leh-Ladakh, this heavy-duty waterproof rider bag features secure mounting straps, dust-proof zippers, reflective panels, and a rugged ballistic nylon exterior to withstand extreme Himalayan weather.",
+    "rating": 4.9,
+    "reviews": 845,
+    "stock": 12,
+    "bestFor": [
+      "Bike Trips",
+      "Outdoor Expeditions"
+    ],
+    "color": "Olive Green",
+    "image": "/images/products/travel-bag16.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "65L",
+      "waterResistant": true,
+      "usbCharging": false,
+      "antiTheft": true,
+      "weight": "1.8kg",
+      "material": "Ballistic Nylon"
+    }
+  },
+  {
+    "name": "Global Explorer Suitcase",
+    "price": 6499,
+    "discount": 800,
+    "category": "Travel Bags",
+    "demographic": "International Travelers",
+    "description": "A massive premium check-in suitcase crafted for international flights and cross-country relocation. Features a shatterproof polycarbonate shell, TSA-approved locks, 360-degree spinner wheels, organized packing cubes, and expandable volume for extended travel.",
+    "rating": 4.8,
+    "reviews": 1240,
+    "stock": 8,
+    "bestFor": [
+      "International Flights",
+      "Long Vacations"
+    ],
+    "color": "Dark Grey",
+    "image": "/images/products/travel-bag15.jpg",
+    "bgcolor": "#F3F4F6",
+    "panelcolor": "#FFFFFF",
+    "textcolor": "#111827",
+    "specifications": {
+      "capacity": "100L",
+      "waterResistant": true,
+      "usbCharging": true,
+      "antiTheft": true,
+      "weight": "4.5kg",
+      "material": "Polycarbonate"
+    }
+  }
+]

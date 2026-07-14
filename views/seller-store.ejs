@@ -1,0 +1,108 @@
+<%- include('./partials/header') %>
+
+<div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10 sm:py-14 animate-fade-in-up">
+
+    <!-- Seller Profile Header -->
+    <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-8 sm:p-10 mb-10">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+
+            <!-- Seller Avatar -->
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center flex-shrink-0 text-white font-bold text-3xl shadow-lg shadow-brand-500/20">
+                <%= seller.shopName ? seller.shopName.charAt(0).toUpperCase() : 'S' %>
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 flex-wrap mb-2">
+                    <h1 class="text-2xl sm:text-3xl font-serif font-bold text-dark-900 tracking-tight"><%= seller.shopName %></h1>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200/50">
+                        <i class="ri-verified-badge-fill text-sm"></i>
+                        Verified Seller
+                    </span>
+                </div>
+                <% if(seller.shopDescription){ %>
+                    <p class="text-dark-400 text-sm leading-relaxed mb-3"><%= seller.shopDescription %></p>
+                <% } %>
+                <div class="flex items-center gap-4 text-xs text-dark-400">
+                    <span class="flex items-center gap-1.5">
+                        <i class="ri-shopping-bag-3-line text-sm text-brand-500"></i>
+                        <%= products.length %> Products
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <i class="ri-user-line text-sm text-brand-500"></i>
+                        <%= seller.fullname %>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="mb-8">
+        <div class="flex items-center gap-2.5 mb-3">
+            <div class="w-1.5 h-6 rounded-full bg-gradient-to-b from-brand-400 to-brand-600"></div>
+            <h2 class="text-xl font-bold text-dark-900 tracking-tight">Products by <%= seller.shopName %></h2>
+        </div>
+    </div>
+
+    <% if(products.length > 0){ %>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+            <% products.forEach(function(product, index){ %>
+                <a href="/product/<%= product._id %>" class="product-card bg-white rounded-2xl border border-gray-100/80 shadow-sm overflow-hidden group"
+                   style="animation-delay: <%= index * 0.05 %>s; opacity: 0; animation: fadeInUp 0.5s ease-out forwards;">
+
+                    <!-- Product Image -->
+                    <div class="relative aspect-square flex items-center justify-center overflow-hidden"
+                         style="background-color: <%= product.bgcolor || '#F3F4F6' %>">
+                        <img class="product-image h-[70%] w-auto object-contain drop-shadow-md"
+                             src="<%= product.image %>" alt="<%= product.name %>">
+
+                        <% if(product.discount > 0){ %>
+                            <div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-red-500 text-white text-[10px] font-bold shadow-md">
+                                -₹<%= product.discount %>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="p-4">
+                        <h3 class="text-sm font-semibold text-dark-900 truncate mb-1.5"><%= product.name %></h3>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-lg font-bold text-dark-900">₹<%= product.price - (product.discount || 0) %></span>
+                            <% if(product.discount > 0){ %>
+                                <span class="text-xs text-dark-400 line-through">₹<%= product.price %></span>
+                            <% } %>
+                        </div>
+                        <% if(product.stock > 0){ %>
+                            <span class="inline-flex items-center gap-1 mt-2 text-[10px] text-emerald-600 font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                In Stock
+                            </span>
+                        <% } else { %>
+                            <span class="inline-flex items-center gap-1 mt-2 text-[10px] text-red-500 font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                                Out of Stock
+                            </span>
+                        <% } %>
+                    </div>
+
+                </a>
+            <% }) %>
+        </div>
+
+    <% } else { %>
+
+        <div class="flex flex-col items-center justify-center py-20">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center mb-6">
+                <i class="ri-shopping-bag-3-line text-3xl text-brand-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-dark-900 mb-2">No Products Yet</h3>
+            <p class="text-dark-400 text-sm">This seller hasn't listed any products yet.</p>
+        </div>
+
+    <% } %>
+
+</div>
+
+<%- include('./partials/footer') %>

@@ -1,0 +1,159 @@
+<%- include('./partials/admin-header') %>
+
+    <!-- Flash Success -->
+    <% if(typeof success !== 'undefined' && success.length > 0){ %>
+        <div class="flash-message fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-2xl bg-emerald-500/95 backdrop-blur-md shadow-2xl shadow-emerald-500/25">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <i class="ri-check-line text-white text-lg"></i>
+                </div>
+                <span class="text-white text-sm font-semibold tracking-wide"><%= success %></span>
+            </div>
+        </div>
+    <% } %>
+
+<div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10 sm:py-14 animate-fade-in-up">
+
+    <!-- Page Header -->
+    <div class="mb-10">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-1.5 h-8 rounded-full bg-gradient-to-b from-brand-500 to-brand-700"></div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-dark-900 tracking-tight">Manage Sellers</h1>
+            <span class="ml-1 px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold tracking-wide">
+                <%= sellers.length %>
+            </span>
+        </div>
+        <p class="text-dark-400 text-sm ml-5 sm:ml-6">
+            Approve, block, or manage seller accounts on ShopSphere.
+        </p>
+    </div>
+
+    <% if (sellers.length > 0) { %>
+
+        <!-- Sellers Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <% sellers.forEach(function(seller, index) { %>
+
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300"
+                     style="animation-delay: <%= index * 0.06 %>s; opacity: 0; animation: fadeInUp 0.5s ease-out forwards;">
+
+                    <!-- Card Header — Seller Info -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 pt-6 pb-4 border-b border-gray-100/80">
+
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <!-- Avatar -->
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center flex-shrink-0 text-white font-bold text-lg">
+                                <%= seller.fullname ? seller.fullname.charAt(0).toUpperCase() : 'S' %>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-sm font-bold text-dark-900 truncate">
+                                    <%= seller.shopName %>
+                                </h3>
+                                <p class="text-xs text-dark-400 truncate">
+                                    <%= seller.fullname %> &middot; <%= seller.email %>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Status Badge -->
+                        <div class="flex-shrink-0">
+                            <% if (seller.isBlocked) { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200/60 text-red-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                    Blocked
+                                </span>
+                            <% } else if (seller.isApproved) { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    Approved
+                                </span>
+                            <% } else { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/60 text-amber-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                    Pending Approval
+                                </span>
+                            <% } %>
+                        </div>
+
+                    </div>
+
+                    <!-- Card Body — Details -->
+                    <div class="px-6 py-4 space-y-3">
+                        <% if(seller.phone){ %>
+                            <div class="flex items-center gap-2 text-xs text-dark-400">
+                                <i class="ri-phone-line text-sm"></i>
+                                <span><%= seller.phone %></span>
+                            </div>
+                        <% } %>
+                        <% if(seller.shopDescription){ %>
+                            <p class="text-xs text-dark-500 leading-relaxed line-clamp-2"><%= seller.shopDescription %></p>
+                        <% } %>
+                        <div class="flex items-center gap-2 text-xs text-dark-400">
+                            <i class="ri-calendar-2-line text-sm"></i>
+                            <span>Joined <%= seller.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+                        </div>
+                    </div>
+
+                    <!-- Card Footer — Actions -->
+                    <div class="px-6 py-4 border-t border-gray-100/80 flex flex-wrap items-center gap-2">
+
+                        <% if(!seller.isApproved && !seller.isBlocked){ %>
+                            <form action="/owners/sellers/<%= seller._id %>/approve" method="POST" class="inline">
+                                <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider hover:bg-emerald-600 transition-colors flex items-center gap-1.5">
+                                    <i class="ri-check-line text-sm"></i>
+                                    Approve
+                                </button>
+                            </form>
+                        <% } %>
+
+                        <form action="/owners/sellers/<%= seller._id %>/block" method="POST" class="inline">
+                            <button type="submit" class="px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 <%= seller.isBlocked ? 'border-emerald-300 text-emerald-600 hover:bg-emerald-50' : 'border-amber-300 text-amber-600 hover:bg-amber-50' %>">
+                                <i class="<%= seller.isBlocked ? 'ri-lock-unlock-line' : 'ri-lock-line' %> text-sm"></i>
+                                <%= seller.isBlocked ? 'Unblock' : 'Block' %>
+                            </button>
+                        </form>
+
+                        <a href="/owners/sellers/<%= seller._id %>/delete"
+                           onclick="return confirm('Delete this seller and all their products?')"
+                           class="px-4 py-2 rounded-xl border border-red-300 text-red-600 text-xs font-bold uppercase tracking-wider hover:bg-red-50 transition-colors flex items-center gap-1.5">
+                            <i class="ri-delete-bin-line text-sm"></i>
+                            Delete
+                        </a>
+
+                    </div>
+
+                </div>
+
+            <% }) %>
+
+        </div>
+
+    <% } else { %>
+
+        <!-- Empty State -->
+        <div class="flex flex-col items-center justify-center py-24 sm:py-32">
+
+            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center mb-8">
+                <i class="ri-store-2-line text-4xl text-brand-400"></i>
+            </div>
+
+            <h2 class="text-2xl font-bold text-dark-900 mb-3">No Sellers Yet</h2>
+
+            <p class="text-dark-400 text-sm text-center max-w-sm mb-8 leading-relaxed">
+                When sellers register, they will appear here for your approval.
+            </p>
+
+            <a href="/owners/dashboard"
+               class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white btn-primary tracking-wide">
+                <i class="ri-arrow-left-line text-lg"></i>
+                Back to Dashboard
+            </a>
+
+        </div>
+
+    <% } %>
+
+</div>
+
+<%- include('./partials/footer') %>

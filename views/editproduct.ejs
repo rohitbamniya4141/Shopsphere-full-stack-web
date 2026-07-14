@@ -104,6 +104,25 @@
                                         class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium">
                                 </div>
 
+                                <div>
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Category</label>
+                                    <select name="category" class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium">
+                                        <% ['General','Handbags','Backpacks','Clutches','Tote Bags','Crossbody','Wallets'].forEach(function(cat){ %>
+                                            <option value="<%= cat %>" <%= (product.category || 'General') === cat ? 'selected' : '' %>><%= cat %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="text-[11px] font-semibold text-dark-400 uppercase tracking-[0.12em] mb-2 block">Stock Quantity</label>
+                                    <input
+                                        name="stock"
+                                        type="number"
+                                        value="<%= product.stock || 0 %>"
+                                        min="0"
+                                        class="input-styled w-full px-4 py-3.5 rounded-xl bg-gray-50/70 text-dark-900 text-sm font-medium">
+                                </div>
+
                             </div>
                         </div>
 

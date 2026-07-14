@@ -1,0 +1,528 @@
+<%- include('./partials/admin-header') %>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10 sm:py-14 animate-fade-in-up">
+
+    <!-- Page Header -->
+    <div class="mb-10">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-1.5 h-8 rounded-full bg-gradient-to-b from-brand-500 to-brand-700"></div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-dark-900 tracking-tight">Analytics Dashboard</h1>
+        </div>
+        <p class="text-dark-400 text-sm ml-5 sm:ml-6">
+            Revenue trends, order insights, and customer performance at a glance.
+        </p>
+    </div>
+
+    <!-- Loading Spinner (shown while fetching) -->
+    <div id="analytics-loader" class="flex flex-col items-center justify-center py-24">
+        <div class="w-12 h-12 rounded-full border-[3px] border-brand-100 border-t-brand-500 animate-spin mb-5"></div>
+        <p class="text-dark-400 text-sm font-medium">Loading analytics data&hellip;</p>
+    </div>
+
+    <!-- Main Content (hidden until data loads) -->
+    <div id="analytics-content" class="hidden">
+
+        <!-- Summary Stat Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+
+            <!-- Total Revenue -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center gap-3.5 mb-4">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-money-rupee-circle-line text-brand-600 text-xl"></i>
+                    </div>
+                    <span class="text-xs uppercase tracking-widest font-semibold text-dark-300">Total Revenue</span>
+                </div>
+                <p id="stat-revenue" class="text-2xl sm:text-3xl font-bold text-dark-900 tracking-tight">—</p>
+            </div>
+
+            <!-- Total Orders -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center gap-3.5 mb-4">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-shopping-bag-line text-blue-600 text-xl"></i>
+                    </div>
+                    <span class="text-xs uppercase tracking-widest font-semibold text-dark-300">Total Orders</span>
+                </div>
+                <p id="stat-orders" class="text-2xl sm:text-3xl font-bold text-dark-900 tracking-tight">—</p>
+            </div>
+
+            <!-- Avg Order Value -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center gap-3.5 mb-4">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-line-chart-line text-emerald-600 text-xl"></i>
+                    </div>
+                    <span class="text-xs uppercase tracking-widest font-semibold text-dark-300">Avg Order Value</span>
+                </div>
+                <p id="stat-aov" class="text-2xl sm:text-3xl font-bold text-dark-900 tracking-tight">—</p>
+            </div>
+
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+            <!-- Revenue Bar Chart -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-dark-900">Monthly Revenue</h3>
+                        <p class="text-xs text-dark-400 mt-0.5">Last 12 months</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center">
+                        <i class="ri-bar-chart-fill text-brand-500 text-lg"></i>
+                    </div>
+                </div>
+                <div class="relative" style="height: 280px;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Orders Line Chart -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-dark-900">Orders Per Month</h3>
+                        <p class="text-xs text-dark-400 mt-0.5">Last 12 months</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <i class="ri-line-chart-fill text-blue-500 text-lg"></i>
+                    </div>
+                </div>
+                <div class="relative" style="height: 280px;">
+                    <canvas id="ordersChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Daily Sales Area Chart -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-dark-900">Daily Sales Trend</h3>
+                        <p class="text-xs text-dark-400 mt-0.5">Last 30 days</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+                        <i class="ri-funds-fill text-emerald-500 text-lg"></i>
+                    </div>
+                </div>
+                <div class="relative" style="height: 280px;">
+                    <canvas id="dailySalesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Category Doughnut Chart -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-dark-900">Category-wise Sales</h3>
+                        <p class="text-xs text-dark-400 mt-0.5">Revenue by category</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
+                        <i class="ri-pie-chart-fill text-purple-500 text-lg"></i>
+                    </div>
+                </div>
+                <div class="relative flex items-center justify-center" style="height: 280px;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Top Customers Table -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+            <div class="px-6 pt-6 pb-4 border-b border-gray-100/80">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-dark-900">Top Customers</h3>
+                        <p class="text-xs text-dark-400 mt-0.5">Ranked by total spending</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center">
+                        <i class="ri-trophy-fill text-brand-500 text-lg"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="hidden sm:block overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-100">
+                            <th class="text-left px-6 py-3.5 text-[11px] uppercase tracking-widest font-semibold text-dark-300">Rank</th>
+                            <th class="text-left px-6 py-3.5 text-[11px] uppercase tracking-widest font-semibold text-dark-300">Customer</th>
+                            <th class="text-left px-6 py-3.5 text-[11px] uppercase tracking-widest font-semibold text-dark-300">Email</th>
+                            <th class="text-center px-6 py-3.5 text-[11px] uppercase tracking-widest font-semibold text-dark-300">Orders</th>
+                            <th class="text-right px-6 py-3.5 text-[11px] uppercase tracking-widest font-semibold text-dark-300">Total Spent</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div id="customers-mobile" class="sm:hidden divide-y divide-gray-100">
+                <!-- Populated by JS -->
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Error State (hidden by default) -->
+    <div id="analytics-error" class="hidden flex flex-col items-center justify-center py-24">
+        <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center mb-8">
+            <i class="ri-error-warning-line text-4xl text-red-400"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-dark-900 mb-3">Failed to Load Data</h2>
+        <p class="text-dark-400 text-sm text-center max-w-sm mb-8 leading-relaxed">
+            Something went wrong while fetching analytics data. Please try again.
+        </p>
+        <button onclick="loadAnalytics()"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white btn-primary tracking-wide">
+            <i class="ri-refresh-line text-lg"></i>
+            Retry
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // Format currency
+    function formatCurrency(val) {
+        return '₹' + Number(val).toLocaleString('en-IN');
+    }
+
+    // Get initial from name
+    function getInitial(name) {
+        return name ? name.charAt(0).toUpperCase() : '?';
+    }
+
+    // Chart defaults
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#787e8b';
+
+    let revenueChart, ordersChart, dailySalesChart, categoryChart;
+
+    async function loadAnalytics() {
+        const loader = document.getElementById('analytics-loader');
+        const content = document.getElementById('analytics-content');
+        const errorEl = document.getElementById('analytics-error');
+
+        loader.classList.remove('hidden');
+        content.classList.add('hidden');
+        errorEl.classList.add('hidden');
+
+        try {
+            const res = await fetch('/owners/api/analytics');
+            if (!res.ok) throw new Error('API Error');
+            const data = await res.json();
+
+            // Populate stats
+            document.getElementById('stat-revenue').textContent = formatCurrency(data.totalRevenue);
+            document.getElementById('stat-orders').textContent = data.totalOrders.toLocaleString('en-IN');
+            document.getElementById('stat-aov').textContent = formatCurrency(data.avgOrderValue);
+
+            // Build charts
+            createRevenueChart(data.monthlyLabels, data.monthlyRevenue);
+            createOrdersChart(data.monthlyLabels, data.monthlyOrders);
+            createDailySalesChart(data.dailyLabels, data.dailySales);
+            createCategoryChart(data.categoryLabels, data.categorySales);
+
+            // Build customers table
+            buildCustomersTable(data.topCustomers || []);
+
+            loader.classList.add('hidden');
+            content.classList.remove('hidden');
+        } catch (err) {
+            console.error(err);
+            loader.classList.add('hidden');
+            errorEl.classList.remove('hidden');
+        }
+    }
+
+    /* ───── Revenue Bar Chart ───── */
+    function createRevenueChart(labels, values) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+        gradient.addColorStop(0, 'rgba(212, 136, 46, 0.85)');
+        gradient.addColorStop(1, 'rgba(233, 188, 125, 0.65)');
+
+        if (revenueChart) revenueChart.destroy();
+        revenueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: values,
+                    backgroundColor: gradient,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    maxBarThickness: 40,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1b20',
+                        titleFont: { weight: '600' },
+                        padding: 12,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: ctx => ' ' + formatCurrency(ctx.parsed.y)
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+                        border: { display: false },
+                        ticks: {
+                            font: { size: 11 },
+                            callback: v => '₹' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v)
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ───── Orders Line Chart ───── */
+    function createOrdersChart(labels, values) {
+        const ctx = document.getElementById('ordersChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+        gradient.addColorStop(0, 'rgba(196, 112, 36, 0.18)');
+        gradient.addColorStop(1, 'rgba(196, 112, 36, 0.0)');
+
+        if (ordersChart) ordersChart.destroy();
+        ordersChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Orders',
+                    data: values,
+                    borderColor: '#c47024',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#c47024',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#c47024',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1b20',
+                        titleFont: { weight: '600' },
+                        padding: 12,
+                        cornerRadius: 10,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+                        border: { display: false },
+                        ticks: {
+                            font: { size: 11 },
+                            stepSize: 1,
+                            precision: 0,
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ───── Daily Sales Area Chart ───── */
+    function createDailySalesChart(labels, values) {
+        const ctx = document.getElementById('dailySalesChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.22)');
+        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+        if (dailySalesChart) dailySalesChart.destroy();
+        dailySalesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Sales (₹)',
+                    data: values,
+                    borderColor: '#10b981',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2.5,
+                    pointRadius: 2,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#10b981',
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#10b981',
+                    pointHoverBorderWidth: 2.5,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1b20',
+                        titleFont: { weight: '600' },
+                        padding: 12,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: ctx => ' ' + formatCurrency(ctx.parsed.y)
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 11 },
+                            maxTicksLimit: 10,
+                        }
+                    },
+                    y: {
+                        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+                        border: { display: false },
+                        ticks: {
+                            font: { size: 11 },
+                            callback: v => '₹' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v)
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ───── Category Doughnut Chart ───── */
+    function createCategoryChart(labels, values) {
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+        const colors = ['#d4882e', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#f59e0b', '#06b6d4'];
+
+        if (categoryChart) categoryChart.destroy();
+        categoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderWidth: 0,
+                    hoverOffset: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            boxHeight: 12,
+                            borderRadius: 3,
+                            useBorderRadius: true,
+                            padding: 16,
+                            font: { size: 12, weight: '500' },
+                            color: '#3d4049',
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1a1b20',
+                        titleFont: { weight: '600' },
+                        padding: 12,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: ctx => ' ' + ctx.label + ': ' + formatCurrency(ctx.parsed)
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ───── Top Customers Table ───── */
+    function buildCustomersTable(customers) {
+        // Desktop
+        const tbody = document.getElementById('customers-table-body');
+        tbody.innerHTML = customers.map((c, i) => `
+            <tr class="border-b border-gray-50 hover:bg-gray-50/60 transition-colors">
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg ${i < 3 ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-dark-400'} text-xs font-bold">
+                        ${i + 1}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center flex-shrink-0">
+                            <span class="text-white text-xs font-bold">${getInitial(c.name)}</span>
+                        </div>
+                        <span class="text-sm font-semibold text-dark-900">${c.name}</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-dark-400">${c.email}</td>
+                <td class="px-6 py-4 text-center">
+                    <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">${c.totalOrders}</span>
+                </td>
+                <td class="px-6 py-4 text-right text-sm font-bold text-dark-900">${formatCurrency(c.totalSpent)}</td>
+            </tr>
+        `).join('');
+
+        // Mobile
+        const mobileEl = document.getElementById('customers-mobile');
+        mobileEl.innerHTML = customers.map((c, i) => `
+            <div class="px-5 py-4 flex items-center gap-3.5">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg ${i < 3 ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-dark-400'} text-xs font-bold flex-shrink-0">
+                    ${i + 1}
+                </span>
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center flex-shrink-0">
+                    <span class="text-white text-xs font-bold">${getInitial(c.name)}</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold text-dark-900 truncate">${c.name}</p>
+                    <p class="text-xs text-dark-400 truncate">${c.email}</p>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <p class="text-sm font-bold text-dark-900">${formatCurrency(c.totalSpent)}</p>
+                    <p class="text-xs text-dark-400">${c.totalOrders} orders</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Load on DOM ready
+    document.addEventListener('DOMContentLoaded', loadAnalytics);
+</script>
+
+<%- include('./partials/footer') %>

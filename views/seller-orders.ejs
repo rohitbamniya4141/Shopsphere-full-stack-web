@@ -1,0 +1,200 @@
+<%- include('./partials/seller-header') %>
+
+    <!-- Flash Success -->
+    <% if(typeof success !== 'undefined' && success.length > 0){ %>
+        <div class="flash-message fixed top-20 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-2xl bg-emerald-500/95 backdrop-blur-md shadow-2xl shadow-emerald-500/25">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <i class="ri-check-line text-white text-lg"></i>
+                </div>
+                <span class="text-white text-sm font-semibold tracking-wide"><%= success %></span>
+            </div>
+        </div>
+    <% } %>
+
+<div class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10 sm:py-14 animate-fade-in-up">
+
+    <!-- Page Header -->
+    <div class="mb-10">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-1.5 h-8 rounded-full bg-gradient-to-b from-brand-500 to-brand-700"></div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-dark-900 tracking-tight">My Orders</h1>
+            <span class="ml-1 px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold tracking-wide">
+                <%= orders.length %>
+            </span>
+        </div>
+        <p class="text-dark-400 text-sm ml-5 sm:ml-6">
+            Track and manage orders containing your products.
+        </p>
+    </div>
+
+    <% if (orders.length > 0) { %>
+
+        <!-- Orders Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <% orders.forEach(function(order, index) { %>
+
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300"
+                     style="animation-delay: <%= index * 0.06 %>s; opacity: 0; animation: fadeInUp 0.5s ease-out forwards;">
+
+                    <!-- Card Header — Customer + Status -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 pt-6 pb-4 border-b border-gray-100/80">
+
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center flex-shrink-0">
+                                <i class="ri-user-3-fill text-brand-600 text-lg"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-sm font-semibold text-dark-900 truncate">
+                                    <%= order.user ? order.user.fullname : 'Unknown' %>
+                                </h3>
+                                <p class="text-xs text-dark-400 truncate">
+                                    <%= order.user ? order.user.email : '' %>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Status Badge -->
+                        <div class="flex items-center gap-3 flex-shrink-0">
+                            <% if (order.status === 'Pending') { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/60 text-amber-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                    Pending
+                                </span>
+                            <% } else if (order.status === 'Payment Confirmed') { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                    Payment Confirmed
+                                </span>
+                            <% } else if (order.status === 'Packed') { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200/60 text-purple-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                    Packed
+                                </span>
+                            <% } else if (order.status === 'Shipped') { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                                    Shipped
+                                </span>
+                            <% } else if (order.status === 'Out For Delivery') { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200/60 text-cyan-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
+                                    Out For Delivery
+                                </span>
+                            <% } else if (order.status === 'Delivered') { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-700 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    Delivered
+                                </span>
+                            <% } else { %>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-dark-50 border border-dark-200/60 text-dark-600 text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-dark-400"></span>
+                                    <%= order.status %>
+                                </span>
+                            <% } %>
+                        </div>
+
+                    </div>
+
+                    <!-- Card Body — Products -->
+                    <div class="px-6 py-4">
+
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2 text-xs text-dark-400">
+                                <i class="ri-calendar-2-line text-sm text-dark-300"></i>
+                                <span><%= order.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+                            </div>
+                            <span class="text-xs text-dark-400 font-medium">
+                                <i class="ri-shopping-bag-line text-sm text-dark-300 mr-1"></i>
+                                <% 
+                                const isNewFormat = order.purchasedItems && order.purchasedItems.length > 0;
+                                const itemsSource = isNewFormat ? order.purchasedItems : order.products;
+                                %>
+                                <%= itemsSource.length %> item(s)
+                            </span>
+                        </div>
+
+                        <div class="space-y-2.5">
+                            <% itemsSource.forEach(function(item) { 
+                                const product = isNewFormat ? item.product : item;
+                                if (!product) return;
+                                const price = isNewFormat ? item.price : product.price;
+                            %>
+                                <div class="flex items-center justify-between gap-3 py-2 px-3 rounded-xl bg-gray-50/70 hover:bg-gray-100/60 transition-colors">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-2 h-2 rounded-full bg-brand-300 flex-shrink-0"></div>
+                                        <span class="text-sm text-dark-700 font-medium truncate"><%= product.name %></span>
+                                    </div>
+                                    <span class="text-sm text-dark-500 font-semibold flex-shrink-0">₹<%= price %></span>
+                                </div>
+                            <% }) %>
+                        </div>
+
+                    </div>
+
+                    <!-- Card Footer — Total + Status Update -->
+                    <div class="px-6 py-4 border-t border-gray-100/80">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <span class="text-xs uppercase tracking-widest font-semibold text-dark-300 block mb-1">Total</span>
+                                <span class="text-lg font-bold text-dark-900">₹<%= order.totalAmount %></span>
+                            </div>
+                            <% if(order.status !== 'Cancelled') { %>
+                                <a href="/sellers/orders/<%= order._id %>/invoice"
+                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors"
+                                   target="_blank">
+                                    <i class="ri-file-download-line text-sm"></i>
+                                    Invoice
+                                </a>
+                            <% } %>
+                        </div>
+
+                        <% if(order.status !== 'Delivered' && order.status !== 'Cancelled'){ %>
+                            <form action="/sellers/orders/<%= order._id %>/status" method="POST" class="flex items-center gap-2">
+                                <select name="status" class="flex-1 px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-dark-700 font-medium cursor-pointer focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition-all">
+                                    <% ['Packed','Shipped','Out For Delivery','Delivered'].forEach(function(s){ %>
+                                        <option value="<%= s %>" <%= order.status === s ? 'selected' : '' %>><%= s %></option>
+                                    <% }) %>
+                                </select>
+                                <button type="submit" class="px-4 py-2 rounded-xl bg-dark-900 text-white text-xs font-bold uppercase tracking-wider hover:bg-dark-800 transition-colors flex-shrink-0">
+                                    Update
+                                </button>
+                            </form>
+                        <% } %>
+                    </div>
+
+                </div>
+
+            <% }) %>
+
+        </div>
+
+    <% } else { %>
+
+        <!-- Empty State -->
+        <div class="flex flex-col items-center justify-center py-24 sm:py-32">
+
+            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center mb-8">
+                <i class="ri-file-list-3-line text-4xl text-brand-400"></i>
+            </div>
+
+            <h2 class="text-2xl font-bold text-dark-900 mb-3">No Orders Yet</h2>
+
+            <p class="text-dark-400 text-sm text-center max-w-sm mb-8 leading-relaxed">
+                When customers buy your products, orders will appear here.
+            </p>
+
+            <a href="/sellers/dashboard"
+               class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white btn-primary tracking-wide">
+                <i class="ri-arrow-left-line text-lg"></i>
+                Back to Dashboard
+            </a>
+
+        </div>
+
+    <% } %>
+
+</div>
+
+<%- include('./partials/footer') %>

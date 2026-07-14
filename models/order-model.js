@@ -12,6 +12,23 @@ const orderSchema = mongoose.Schema({
         ref: 'products'
     }],
 
+    purchasedItems: [{
+        product: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'products'
+        },
+        price: Number,
+        discount: Number,
+        seller: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'sellers'
+        },
+        qty: {
+            type: Number,
+            default: 1
+        }
+    }],
+
     totalAmount: {
         type: Number,
         required: true
@@ -20,6 +37,19 @@ const orderSchema = mongoose.Schema({
     status: {
         type: String,
         default: 'Pending'
+    },
+
+    statusHistory: [{
+        status: String,
+        date: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+
+    paymentId: {
+        type: String,
+        default: ''
     }
 },{
     timestamps: true

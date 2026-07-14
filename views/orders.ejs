@@ -48,7 +48,98 @@
                         <!-- Divider -->
                         <div class="border-t border-dashed border-gray-100 my-5"></div>
 
-                        <!-- Bottom Row: Amount & Status -->
+                        <!-- Products List -->
+                        <% 
+                        const isNewFormat = order.purchasedItems && order.purchasedItems.length > 0;
+                        const itemsSource = isNewFormat ? order.purchasedItems : order.products;
+                        if(itemsSource && itemsSource.length > 0){ %>
+                            <div class="mb-5">
+                                <p class="text-[11px] text-dark-300 uppercase tracking-widest font-medium mb-3">Items (<%= itemsSource.length %>)</p>
+                                <div class="flex flex-wrap gap-3">
+                                    <% itemsSource.forEach(function(item){ 
+                                        const product = isNewFormat ? item.product : item;
+                                        if (!product) return;
+                                        const price = isNewFormat ? item.price - (item.discount || 0) : product.price - (product.discount || 0);
+                                    %>
+                                        <% if(product && product.image){ %>
+                                            <a href="/product/<%= product._id %>" class="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2 hover:bg-gray-100 transition-colors">
+                                                <div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0" style="background-color: <%= product.bgcolor || '#f5f5f5' %>">
+                                                    <img src="<%= product.image %>" class="w-full h-full object-contain" alt="<%= product.name %>">
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs font-semibold text-dark-800 truncate max-w-[120px]"><%= product.name %></p>
+                                                    <p class="text-[11px] text-dark-400">₹<%= price %></p>
+                                                </div>
+                                            </a>
+                                        <% } %>
+                                    <% }) %>
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <!-- Delivery Timeline -->
+                        <% if(order.statusHistory && order.statusHistory.length > 0){ %>
+                            <div class="mb-5">
+                                <p class="text-[11px] text-dark-300 uppercase tracking-widest font-medium mb-4">Delivery Progress</p>
+                                <%
+                                    const allStatuses = ['Pending', 'Payment Confirmed', 'Packed', 'Shipped', 'Out For Delivery', 'Delivered'];
+                                    const isCancelled = order.status === 'Cancelled';
+                                    const completedStatuses = order.statusHistory.map(s => s.status);
+                                    const currentIndex = isCancelled ? -1 : allStatuses.indexOf(order.status);
+                                %>
+                                <div class="flex flex-col sm:flex-row gap-1 sm:gap-0">
+                                    <% allStatuses.forEach(function(status, idx){ %>
+                                        <%
+                                            const historyEntry = order.statusHistory.find(s => s.status === status);
+                                            const isCompleted = completedStatuses.includes(status);
+                                            const isCurrent = order.status === status;
+                                        %>
+                                        <div class="flex sm:flex-col items-start sm:items-center flex-1 relative">
+                                            <!-- Step indicator -->
+                                            <div class="flex items-center sm:flex-col sm:items-center gap-3 sm:gap-1.5">
+                                                <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                                                    <% if(isCompleted && !isCancelled){ %>
+                                                        bg-emerald-500 text-white
+                                                    <% } else if(isCurrent && !isCancelled){ %>
+                                                        bg-brand-500 text-white ring-4 ring-brand-100
+                                                    <% } else { %>
+                                                        bg-gray-100 text-dark-300
+                                                    <% } %>
+                                                ">
+                                                    <% if(isCompleted && !isCancelled){ %>
+                                                        <i class="ri-check-line text-sm"></i>
+                                                    <% } else { %>
+                                                        <%= idx + 1 %>
+                                                    <% } %>
+                                                </div>
+                                                <div class="sm:text-center">
+                                                    <p class="text-[11px] font-semibold <%= isCompleted || isCurrent ? 'text-dark-800' : 'text-dark-300' %> whitespace-nowrap"><%= status %></p>
+                                                    <% if(historyEntry){ %>
+                                                        <p class="text-[10px] text-dark-300 mt-0.5"><%= new Date(historyEntry.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) %></p>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                            <!-- Connecting line (not on last item) -->
+                                            <% if(idx < allStatuses.length - 1){ %>
+                                                <div class="hidden sm:block absolute top-3.5 left-[calc(50%+14px)] right-0 h-0.5 <%= isCompleted && completedStatuses.includes(allStatuses[idx+1]) ? 'bg-emerald-400' : 'bg-gray-100' %>"></div>
+                                            <% } %>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                                <% if(isCancelled){ %>
+                                    <div class="mt-4 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 border border-red-100">
+                                        <i class="ri-close-circle-line text-red-500"></i>
+                                        <span class="text-sm font-semibold text-red-600">Order Cancelled</span>
+                                        <% const cancelEntry = order.statusHistory.find(s => s.status === 'Cancelled'); %>
+                                        <% if(cancelEntry){ %>
+                                            <span class="text-xs text-red-400 ml-auto"><%= new Date(cancelEntry.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+                                        <% } %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } %>
+
+                        <!-- Bottom Row: Amount, Status & Cancel -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
                                 <p class="text-[11px] text-dark-300 uppercase tracking-widest font-medium mb-1">Total Amount</p>
@@ -58,10 +149,12 @@
                                 <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
                                     <% if(order.status === 'Delivered'){ %>
                                         bg-emerald-50 text-emerald-700 border border-emerald-100
-                                    <% } else if(order.status === 'Shipped'){ %>
+                                    <% } else if(order.status === 'Shipped' || order.status === 'Out For Delivery'){ %>
                                         bg-blue-50 text-blue-700 border border-blue-100
                                     <% } else if(order.status === 'Cancelled'){ %>
                                         bg-red-50 text-red-700 border border-red-100
+                                    <% } else if(order.status === 'Payment Confirmed' || order.status === 'Packed'){ %>
+                                        bg-purple-50 text-purple-700 border border-purple-100
                                     <% } else { %>
                                         bg-amber-50 text-amber-700 border border-amber-100
                                     <% } %>
@@ -69,16 +162,36 @@
                                     <span class="w-2 h-2 rounded-full
                                         <% if(order.status === 'Delivered'){ %>
                                             bg-emerald-500
-                                        <% } else if(order.status === 'Shipped'){ %>
+                                        <% } else if(order.status === 'Shipped' || order.status === 'Out For Delivery'){ %>
                                             bg-blue-500
                                         <% } else if(order.status === 'Cancelled'){ %>
                                             bg-red-500
+                                        <% } else if(order.status === 'Payment Confirmed' || order.status === 'Packed'){ %>
+                                            bg-purple-500
                                         <% } else { %>
                                             bg-amber-500
                                         <% } %>
                                     "></span>
                                     <%= order.status %>
                                 </span>
+
+                                <% if(order.status !== 'Cancelled') { %>
+                                    <a href="/orders/<%= order._id %>/invoice"
+                                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border-2 border-brand-200 text-brand-600 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all duration-200"
+                                       target="_blank">
+                                        <i class="ri-file-download-line text-sm"></i>
+                                        Invoice
+                                    </a>
+                                <% } %>
+
+                                <% if(order.status === 'Pending' || order.status === 'Payment Confirmed'){ %>
+                                    <a href="/orders/<%= order._id %>/cancel"
+                                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border-2 border-red-200 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all duration-200"
+                                       onclick="return confirm('Are you sure you want to cancel this order?')">
+                                        <i class="ri-close-circle-line text-sm"></i>
+                                        Cancel
+                                    </a>
+                                <% } %>
                             </div>
                         </div>
                     </div>

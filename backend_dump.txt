@@ -1,0 +1,3070 @@
+
+
+--- config/keys.js ---
+module.exports = {
+  JWT_KEY: process.env.JWT_KEY
+};
+
+--- config/mongoose-connection.js ---
+const mongoose = require('mongoose');
+const config = require('config');
+const dbgr = require('debug')('development:mongoose');
+
+mongoose
+.connect(`${config.get('MONGODB_URI')}/shopSphere`)
+.then(() => {
+    dbgr('Connected to MongoDB');
+})
+.catch((err) => {
+    dbgr ('Error in connecting to MongoDB:', err);
+});
+
+module.exports = mongoose.connection;
+
+--- config/multer-config.js ---
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+module.exports = upload;
+
+--- config/razorpay.config.js ---
+const dotenv = require('dotenv');
+dotenv.config();
+const Razorpay = require("razorpay");
+
+const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+module.exports = razorpayInstance;
+
+--- models/order-model.js ---
+const mongoose = require('mongoose');
+
+const orderSchema = mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
+        required: true
+    },
+
+    products: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'products'
+    }],
+
+    totalAmount: {
+        type: Number,
+        required: true
+    },
+
+    status: {
+        type: String,
+        default: 'Pending'
+    },
+
+    statusHistory: [{
+        status: String,
+        date: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+
+    paymentId: {
+        type: String,
+        default: ''
+    }
+},{
+    timestamps: true
+});
+
+module.exports = mongoose.model('orders', orderSchema);
+
+--- models/owner-model.js ---
+const mongoose = require('mongoose');
+
+const ownerSchema = mongoose.Schema({
+    fullname: String,
+    email: String,
+    password: String,
+    products: {
+      type: Array,
+      default: []
+    },
+    phone: Number,
+    gstin: String,
+    picture: String
+  });
+
+  module.exports = mongoose.model('owners', ownerSchema);
+
+--- models/product-model.js ---
+const mongoose = require('mongoose');
+
+
+
+const productSchema = mongoose.Schema({
+
+    image: String,
+
+    name: String,
+
+    price: Number,
+
+    discount:{
+        type:Number,
+        default:0
+    },
+
+    category: {
+        type: String,
+        default: 'General'
+    },
+
+    demographic: String,
+    
+    description: String,
+    
+    rating: {
+        type: Number,
+        default: 0
+    },
+    
+    reviews: {
+        type: Number,
+        default: 0
+    },
+    bestFor: {
+        type: [String],
+        default: []
+    },
+    color: String,
+    specifications: {
+        capacity: String,
+        laptopSize: String,
+        waterResistant: Boolean,
+        usbCharging: Boolean,
+        antiTheft: Boolean,
+        weight: String,
+        material: String
+    },
+
+    stock: {
+        type: Number,
+        default: 0
+    },
+
+    seller: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sellers',
+        default: null
+    },
+
+    bgcolor:String,
+
+    panelcolor:String,
+
+    textcolor:String
+
+},{
+    timestamps:true
+});
+
+  module.exports = mongoose.model('products', productSchema);
+
+--- models/review-model.js ---
+const mongoose = require('mongoose');
+
+const reviewSchema = mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
+        required: true
+    },
+    product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'products',
+        required: true
+    },
+    rating: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 5
+    },
+    comment: {
+        type: String,
+        required: true
+    }
+},{
+    timestamps: true
+});
+
+// One review per user per product
+reviewSchema.index({ product: 1, user: 1 }, { unique: true });
+
+module.exports = mongoose.model('reviews', reviewSchema);
+
+
+--- models/seller-model.js ---
+const mongoose = require('mongoose');
+
+const sellerSchema = mongoose.Schema({
+    fullname: String,
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: String,
+    phone: Number,
+    shopName: String,
+    shopLogo: {
+        type: String,
+        default: ''
+    },
+    shopDescription: String,
+    isApproved: {
+        type: Boolean,
+        default: false
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false
+    }
+},{
+    timestamps: true
+});
+
+module.exports = mongoose.model('sellers', sellerSchema);
+
+
+--- models/user-model.js ---
+const mongoose = require('mongoose');
+
+const userSchema = mongoose.Schema({
+    fullname: String,
+    email: String,
+    password: String,
+    cart: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'products'
+            }],
+        default: []
+      },
+    wishlist: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'products'
+        }],
+        default: []
+    },
+    orders: {
+      type: [{
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'orders'
+      }],
+      default: []
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user'
+    },
+    phone: Number,
+    picture: String
+  });
+
+  module.exports = mongoose.model('users', userSchema);
+
+--- controllers/aiController.js ---
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const productModel = require('../models/product-model');
+const reviewModel = require('../models/review-model');
+const orderModel = require('../models/order-model');
+const sellerModel = require('../models/seller-model');
+
+// ===== Lazy Gemini Initialization =====
+let genAI = null;
+let model = null;
+
+function getModel() {
+    if (!model) {
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error('GEMINI_API_KEY is not configured');
+        }
+        genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    }
+    return model;
+}
+
+// ===== System Prompt =====
+const SYSTEM_PROMPT = `You are ShopSphere AI — a warm, friendly personal shopping assistant for ShopSphere, a premium bag store in India.
+
+PERSONALITY:
+- Be conversational, warm and helpful — like a real store assistant standing next to the customer.
+- Use emojis naturally but not excessively (1-2 per message).
+- Keep responses concise and scannable (under 200 words).
+
+LANGUAGE RULES (CRITICAL):
+- Auto-detect the user's language: English, Hindi, or Hinglish.
+- ALWAYS reply in the SAME language the user used.
+- If user writes in Hindi/Hinglish → respond in Hindi/Hinglish.
+- If user writes in English → respond in English.
+- Examples:
+  User: "Mujhe office bag chahiye" → Reply in Hinglish.
+  User: "Show me backpacks" → Reply in English.
+
+CONVERSATION FLOW:
+1. GREETINGS (hi, hello, hey, namaste, kaise ho):
+   Respond warmly and show options:
+   "Hi 👋 Main ShopSphere AI hoon! Kaise help karun?
+   🎒 Backpacks
+   👜 Handbags
+   🎁 Gift Suggestions
+   💼 Office Bags
+   💰 Budget Picks"
+   (Use English version if user greeted in English)
+
+2. VAGUE QUERIES (only a category, no budget/details):
+   Do NOT recommend immediately. Ask ONE clarifying question:
+   "Sure! 😊 What's your approximate budget?
+   • Under ₹2,000
+   • ₹2,000 – ₹4,000
+   • Above ₹4,000"
+
+3. SPECIFIC QUERIES (category + budget + preferences):
+   NOW recommend products with reasoning.
+
+4. FOLLOW-UPS ("cheaper ones", "more options", a budget number, a color):
+   Use conversation history to understand what the user wants, and respond naturally.
+
+RECOMMENDATION FORMAT (always use this):
+"I recommend **[Product Name]** (sold by [Seller Name]) because:
+✓ Fits your ₹X,XXX budget
+✓ [key feature relevant to their need]
+✓ ₹XXX discount available
+✓ X units in stock
+✓ Rated X.X/5 by customers
+
+**Why I recommend this:** [one sentence personal reason]"
+
+COMPARISON FORMAT (when user says "compare X and Y"):
+"📊 **Comparison**
+
+| Feature | [Product A] | [Product B] |
+|---|---|---|
+| 💰 Price | ₹X,XXX | ₹Y,YYY |
+| 🏷️ Discount | ₹X off | ₹Y off |
+| ⭐ Rating | X.X/5 | Y.Y/5 |
+| 📦 Stock | X units | Y units |
+| 🏷️ Category | A | B |
+
+**Best For:** ...
+**🏆 Winner:** [Product] because..."
+
+INTELLIGENT FALLBACK:
+- If NO exact match exists, NEVER just say "no products found".
+- Always recommend the CLOSEST alternatives:
+  "We don't currently have a dedicated [X] under ₹[Y]. But here are some great alternatives that might work..."
+
+ANALYTICS / POPULARITY QUESTIONS:
+- "Which is most popular?", "Best seller?", "Most bought?" → Answer using the product data provided (ratings and stock as indicators).
+- If insufficient data: "I don't have detailed sales data right now, but based on ratings and availability, here are our top picks..."
+
+STRICT RULES:
+1. ONLY answer about ShopSphere products and shopping.
+2. Use ONLY the product data provided below. NEVER invent products.
+3. For unrelated questions (coding, celebrities, science, math):
+   English: "I'm ShopSphere AI — I can only help you with shopping and our products! 🛍️"
+   Hindi: "Main ShopSphere AI hoon — sirf shopping mein help kar sakta hoon! 🛍️"
+4. Format prices as ₹X,XXX (Indian format).
+5. Warn if stock is low (under 5 units): "⚠️ Only X left!"
+6. Always mention discounts when a product has one.
+
+AVAILABLE PRODUCTS:
+{PRODUCTS}
+
+If the product list is empty, suggest the user browse /shop or try different keywords.`;
+
+// ===== Category Keyword Mappings =====
+const CATEGORY_KEYWORDS = {
+    // English
+    'handbag': 'Handbags',
+    'handbags': 'Handbags',
+    'hand bag': 'Handbags',
+    'purse': 'Handbags',
+    'backpack': 'Backpacks',
+    'backpacks': 'Backpacks',
+    'back pack': 'Backpacks',
+    'rucksack': 'Backpacks',
+    'laptop bag': 'Backpacks',
+    'laptop': 'Backpacks',
+    'school bag': 'Backpacks',
+    'college bag': 'Backpacks',
+    'clutch': 'Clutches',
+    'clutches': 'Clutches',
+    'evening bag': 'Clutches',
+    'tote': 'Tote Bags',
+    'tote bag': 'Tote Bags',
+    'tote bags': 'Tote Bags',
+    'shopper': 'Tote Bags',
+    'crossbody': 'Crossbody',
+    'cross body': 'Crossbody',
+    'sling': 'Crossbody',
+    'sling bag': 'Crossbody',
+    'messenger': 'Crossbody',
+    'wallet': 'Wallets',
+    'wallets': 'Wallets',
+    'card holder': 'Wallets',
+    // Hindi / Hinglish
+    'haath bag': 'Handbags',
+    'haath ka bag': 'Handbags',
+    'peeth bag': 'Backpacks',
+    'peeth ka bag': 'Backpacks',
+    'batua': 'Wallets',
+    'thaila': 'Tote Bags',
+    'jhola': 'Tote Bags',
+};
+
+// ===== Use Case → Category Mappings =====
+const USE_CASE_MAP = {
+    // English
+    'travel': ['Backpacks', 'Tote Bags'],
+    'travelling': ['Backpacks', 'Tote Bags'],
+    'vacation': ['Backpacks', 'Tote Bags'],
+    'trip': ['Backpacks', 'Tote Bags'],
+    'hiking': ['Backpacks'],
+    'office': ['Handbags', 'Crossbody', 'Tote Bags'],
+    'work': ['Handbags', 'Crossbody', 'Tote Bags'],
+    'formal': ['Handbags', 'Clutches'],
+    'professional': ['Handbags', 'Tote Bags'],
+    'college': ['Backpacks', 'Crossbody'],
+    'school': ['Backpacks'],
+    'university': ['Backpacks', 'Crossbody'],
+    'student': ['Backpacks', 'Crossbody'],
+    'party': ['Clutches', 'Handbags'],
+    'evening': ['Clutches'],
+    'wedding': ['Clutches', 'Handbags'],
+    'date': ['Clutches', 'Handbags', 'Crossbody'],
+    'casual': ['Crossbody', 'Tote Bags', 'Backpacks'],
+    'daily': ['Crossbody', 'Tote Bags'],
+    'daily use': ['Crossbody', 'Tote Bags'],
+    'everyday': ['Crossbody', 'Tote Bags'],
+    'gym': ['Backpacks', 'Tote Bags'],
+    'fashion': ['Handbags', 'Clutches', 'Crossbody'],
+    'stylish': ['Handbags', 'Clutches', 'Crossbody'],
+    'trendy': ['Handbags', 'Clutches', 'Crossbody'],
+    'luxury': ['Handbags', 'Clutches'],
+    'premium': ['Handbags', 'Clutches'],
+    'gift': null,
+    'present': null,
+    'gift for sister': null,
+    'gift for mother': null,
+    'gift for mom': null,
+    'gift for wife': null,
+    'gift for girlfriend': null,
+    'gift for friend': null,
+    'gift for her': null,
+    'gift for him': ['Backpacks', 'Wallets'],
+    'gift for brother': ['Backpacks', 'Wallets'],
+    'gift for dad': ['Backpacks', 'Wallets'],
+    'gift for father': ['Backpacks', 'Wallets'],
+    // Hindi / Hinglish
+    'safar': ['Backpacks', 'Tote Bags'],
+    'yatra': ['Backpacks', 'Tote Bags'],
+    'ghoomne': ['Backpacks', 'Tote Bags'],
+    'padhne': ['Backpacks', 'Crossbody'],
+    'padhai': ['Backpacks', 'Crossbody'],
+    'kaam': ['Handbags', 'Crossbody', 'Tote Bags'],
+    'daftar': ['Handbags', 'Crossbody', 'Tote Bags'],
+    'shaadi': ['Clutches', 'Handbags'],
+    'tohfa': null,
+    'behan ke liye': null,
+    'sister ke liye': null,
+    'maa ke liye': null,
+    'mom ke liye': null,
+    'bhai ke liye': ['Backpacks', 'Wallets'],
+    'dost ke liye': null,
+    'friend ke liye': null,
+};
+
+// ===== Greeting Patterns =====
+const GREETING_PATTERNS = /^(hi|hello|hey|hii+|helloo+|hola|namaste|namaskar|namaskaar|kaise ho|how are you|good morning|good evening|good afternoon|howdy|sup|yo)\b/i;
+
+// ===== Intent Extraction (Pure JS — no AI cost) =====
+function extractIntent(message) {
+    const msg = message.toLowerCase().trim();
+
+    const intent = {
+        category: null,
+        categories: [],
+        minPrice: null,
+        maxPrice: null,
+        keywords: [],
+        wantsDiscount: false,
+        wantsComparison: false,
+        compareNames: [],
+        wantsBestRated: false,
+        wantsCheapest: false,
+        wantsPremium: false,
+        wantsPopular: false,
+        isGreeting: false,
+    };
+
+    // Greeting detection
+    if (GREETING_PATTERNS.test(msg)) {
+        intent.isGreeting = true;
+    }
+
+    // 1. Category detection (longest match first)
+    const sortedKeywords = Object.keys(CATEGORY_KEYWORDS).sort((a, b) => b.length - a.length);
+    for (const keyword of sortedKeywords) {
+        if (msg.includes(keyword)) {
+            intent.category = CATEGORY_KEYWORDS[keyword];
+            break;
+        }
+    }
+
+    // 2. Use case detection (longest match first)
+    if (!intent.category) {
+        const sortedUseCases = Object.keys(USE_CASE_MAP).sort((a, b) => b.length - a.length);
+        for (const useCase of sortedUseCases) {
+            if (msg.includes(useCase)) {
+                const categories = USE_CASE_MAP[useCase];
+                if (categories) intent.categories = categories;
+                break;
+            }
+        }
+    }
+
+    // 3. Price extraction
+    // "between X and Y" / "X to Y" / "X se Y"
+    const betweenMatch = msg.match(/(?:between|from|beech)?\s*(?:₹|rs\.?|inr)?\s*(\d+)\s*(?:to|and|se|aur|-|–)\s*(?:₹|rs\.?|inr)?\s*(\d+)/i);
+    if (betweenMatch) {
+        intent.minPrice = parseInt(betweenMatch[1]);
+        intent.maxPrice = parseInt(betweenMatch[2]);
+    }
+
+    // "under / below / less than / ke andar / se kam" X
+    if (!intent.maxPrice) {
+        const underMatch = msg.match(/(?:under|below|less than|within|max|upto|up to|budget of|budget|ke andar|se kam|tak|mein)\s*(?:₹|rs\.?|inr)?\s*(\d+)/i);
+        if (underMatch) intent.maxPrice = parseInt(underMatch[1]);
+    }
+
+    // "above / over / more than / se zyada" X
+    if (!intent.minPrice) {
+        const aboveMatch = msg.match(/(?:above|over|more than|min|at least|starting from|starting at|se zyada|se upar)\s*(?:₹|rs\.?|inr)?\s*(\d+)/i);
+        if (aboveMatch) intent.minPrice = parseInt(aboveMatch[1]);
+    }
+
+    // Standalone number with ₹/rs prefix → budget ceiling
+    if (!intent.maxPrice && !intent.minPrice) {
+        const standalonePrice = msg.match(/(?:₹|rs\.?)\s*(\d+)/i);
+        if (standalonePrice) intent.maxPrice = parseInt(standalonePrice[1]);
+    }
+
+    // Just a plain number (like a follow-up "3000") → treat as budget
+    if (!intent.maxPrice && !intent.minPrice && !intent.isGreeting) {
+        const plainNumber = msg.match(/^\s*(\d{3,6})\s*$/);
+        if (plainNumber) intent.maxPrice = parseInt(plainNumber[1]);
+    }
+
+    // 4. Preference flags
+    if (/discount|sale|offer|deal|affordable|value|saving|sasta|saste|offer wala|chhota price/.test(msg)) {
+        intent.wantsDiscount = true;
+    }
+    if (/best rated|highest rated|top rated|best review|highly rated|sabse accha|best wala|sabse acchi rating/.test(msg)) {
+        intent.wantsBestRated = true;
+    }
+    if (/cheapest|lowest price|most affordable|budget|economical|inexpensive|sabse sasta|kam price|kam daam/.test(msg)) {
+        intent.wantsCheapest = true;
+    }
+    if (/premium|luxury|luxurious|expensive|high.?end|best quality|finest|exclusive|mehnga|mehenga/.test(msg)) {
+        intent.wantsPremium = true;
+    }
+    if (/popular|best sell|most bought|most ordered|trending|most sold|famous|sabse zyada bikne|lokpriya|sabse popular/.test(msg)) {
+        intent.wantsPopular = true;
+    }
+
+    // 5. Comparison detection
+    const compareMatch = msg.match(/compare\s+(.+?)\s+(?:and|vs\.?|versus|with|aur|se)\s+(.+?)(?:\.|$)/i);
+    if (compareMatch) {
+        intent.wantsComparison = true;
+        intent.compareNames = [compareMatch[1].trim(), compareMatch[2].trim()];
+    } else if (/\bcompare\b|\bvs\b|\bversus\b|difference between|dono mein|comparison/i.test(msg)) {
+        intent.wantsComparison = true;
+    }
+
+    // 6. General keyword extraction (remove stop words)
+    const stopWords = new Set([
+        'i', 'me', 'my', 'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be',
+        'been', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
+        'could', 'should', 'may', 'might', 'can', 'need', 'want', 'looking',
+        'for', 'show', 'find', 'get', 'give', 'some', 'any', 'please', 'thanks',
+        'thank', 'you', 'something', 'good', 'nice', 'great', 'recommend',
+        'suggest', 'help', 'with', 'of', 'in', 'on', 'at', 'to', 'from',
+        'and', 'or', 'but', 'not', 'no', 'yes', 'what', 'which', 'that',
+        'this', 'it', 'its', 'bag', 'bags', 'product', 'products', 'item',
+        'items', 'one', 'ones', 'under', 'below', 'above', 'between', 'price',
+        'priced', 'rs', 'inr', 'rupees', 'rupee', 'tell', 'about', 'like',
+        'also', 'too', 'very', 'much', 'more', 'most', 'best', 'better',
+        'hey', 'hi', 'hello', 'there', 'how',
+        // Hindi stop words
+        'mujhe', 'mujhko', 'mera', 'mere', 'hai', 'hain', 'tha', 'thi',
+        'chahiye', 'chahie', 'dikhao', 'dikha', 'batao', 'bata', 'karo',
+        'karna', 'kar', 'dedo', 'do', 'kuch', 'koi', 'ek', 'ke', 'ka',
+        'ki', 'ko', 'se', 'mein', 'main', 'hoon', 'wala', 'wali', 'wale',
+        'liye', 'acha', 'accha', 'acchi', 'aur', 'ya', 'par', 'nahi',
+        'haa', 'nahin', 'kya', 'kaun', 'kaise', 'kidhar', 'yeh', 'woh',
+        'suggest', 'recommendation'
+    ]);
+    const words = msg.replace(/[^\w\s]/g, '').split(/\s+/);
+    intent.keywords = words.filter(w => w.length > 2 && !stopWords.has(w) && isNaN(w));
+
+    return intent;
+}
+
+// ===== MongoDB Query Builder =====
+function buildQuery(intent) {
+    const query = { stock: { $gt: 0 } };
+
+    if (intent.category) {
+        query.category = intent.category;
+    } else if (intent.categories.length > 0) {
+        query.category = { $in: intent.categories };
+    }
+
+    if (intent.minPrice || intent.maxPrice) {
+        query.price = {};
+        if (intent.minPrice) query.price.$gte = intent.minPrice;
+        if (intent.maxPrice) query.price.$lte = intent.maxPrice;
+    }
+
+    // Apply keyword regex only when no strong filters exist
+    if (intent.keywords.length > 0 && !intent.category && intent.categories.length === 0) {
+        query.name = { $regex: intent.keywords.join('|'), $options: 'i' };
+    }
+
+    return query;
+}
+
+// ===== Sort Option =====
+function getSortOption(intent) {
+    if (intent.wantsCheapest) return { price: 1 };
+    if (intent.wantsPremium) return { price: -1 };
+    if (intent.wantsDiscount) return { discount: -1 };
+    return { createdAt: -1 };
+}
+
+// ===== Fetch Average Ratings =====
+async function getProductRatings(productIds) {
+    const ratings = await reviewModel.aggregate([
+        { $match: { product: { $in: productIds } } },
+        { $group: { _id: '$product', avgRating: { $avg: '$rating' }, totalReviews: { $sum: 1 } } }
+    ]);
+    const map = {};
+    ratings.forEach(r => {
+        map[r._id.toString()] = {
+            avgRating: Math.round(r.avgRating * 10) / 10,
+            totalReviews: r.totalReviews
+        };
+    });
+    return map;
+}
+
+// ===== Fetch Popular Products (by order count) =====
+async function getPopularProducts() {
+    try {
+        const popular = await orderModel.aggregate([
+            { $unwind: '$products' },
+            { $group: { _id: '$products', orderCount: { $sum: 1 } } },
+            { $sort: { orderCount: -1 } },
+            { $limit: 5 },
+            { $lookup: { from: 'products', localField: '_id', foreignField: '_id', as: 'product' } },
+            { $unwind: '$product' },
+            { $match: { 'product.stock': { $gt: 0 } } }
+        ]);
+        return popular.map(function(item) {
+            const p = item.product;
+            p.orderCount = item.orderCount;
+            return p;
+        });
+    } catch (err) {
+        return [];
+    }
+}
+
+// ===== Fetch Top Rated Products =====
+async function getTopRatedProducts() {
+    try {
+        const topRated = await reviewModel.aggregate([
+            { $group: { _id: '$product', avgRating: { $avg: '$rating' }, reviewCount: { $sum: 1 } } },
+            { $match: { reviewCount: { $gte: 1 } } },
+            { $sort: { avgRating: -1 } },
+            { $limit: 5 },
+            { $lookup: { from: 'products', localField: '_id', foreignField: '_id', as: 'product' } },
+            { $unwind: '$product' },
+            { $match: { 'product.stock': { $gt: 0 } } }
+        ]);
+        return topRated.map(function(item) {
+            const p = item.product;
+            return p;
+        });
+    } catch (err) {
+        return [];
+    }
+}
+
+// ===== Format Products for Gemini (minimal, no sensitive data) =====
+function formatProductsForAI(products, ratingMap) {
+    if (products.length === 0) return 'No products match the current criteria.';
+
+    return products.map((p, i) => {
+        const rating = ratingMap[p._id.toString()];
+        const effectivePrice = p.price - (p.discount || 0);
+        const sellerName = p.seller && p.seller.shopName ? p.seller.shopName : 'ShopSphere Official';
+        return `${i + 1}. ${p.name}
+   Price: ₹${p.price}${p.discount > 0 ? ` (₹${p.discount} off → Pay ₹${effectivePrice})` : ''}
+   Category: ${p.category}
+   Sold by: ${sellerName}
+   In Stock: ${p.stock} units${p.stock < 5 ? ' ⚠️ LOW STOCK' : ''}
+   Rating: ${rating ? `${rating.avgRating}/5 (${rating.totalReviews} reviews)` : 'No reviews yet'}`;
+    }).join('\n\n');
+}
+
+// ===== Main Chat Handler =====
+exports.chat = async function(req, res) {
+    try {
+        const { message, history } = req.body;
+
+        // Validate input
+        if (!message || typeof message !== 'string' || message.trim().length === 0) {
+            return res.json({
+                reply: "Please ask me something about our products! 🛍️",
+                products: []
+            });
+        }
+
+        if (message.trim().length > 500) {
+            return res.json({
+                reply: "That message is a bit long! Could you keep it shorter? 😊",
+                products: []
+            });
+        }
+
+        const userMessage = message.trim();
+
+        // Step 1: Extract intent
+        const intent = extractIntent(userMessage);
+
+        // Step 2: MongoDB search
+        let products = [];
+
+        if (intent.isGreeting) {
+            // For greetings, send top 5 products as general context
+            products = await productModel
+                .find({ stock: { $gt: 0 } })
+                .select('-image -bgcolor -panelcolor -textcolor')
+                .populate('seller', 'shopName')
+                .sort({ createdAt: -1 })
+                .limit(5);
+
+        } else if (intent.wantsPopular) {
+            // Fetch most ordered products
+            products = await getPopularProducts();
+            if (products.length === 0) {
+                // Fallback to newest
+                products = await productModel
+                    .find({ stock: { $gt: 0 } })
+                    .select('-image -bgcolor -panelcolor -textcolor')
+                    .populate('seller', 'shopName')
+                    .sort({ createdAt: -1 })
+                    .limit(5);
+            }
+
+        } else if (intent.wantsBestRated) {
+            // Fetch highest rated products
+            products = await getTopRatedProducts();
+            if (products.length === 0) {
+                products = await productModel
+                    .find({ stock: { $gt: 0 } })
+                    .select('-image -bgcolor -panelcolor -textcolor')
+                    .populate('seller', 'shopName')
+                    .sort({ createdAt: -1 })
+                    .limit(5);
+            }
+
+        } else if (intent.wantsComparison && intent.compareNames.length === 2) {
+            // Comparison: fetch both products by name
+            const [p1, p2] = await Promise.all([
+                productModel.findOne({ name: { $regex: intent.compareNames[0], $options: 'i' } })
+                    .select('-image -bgcolor -panelcolor -textcolor')
+                    .populate('seller', 'shopName'),
+                productModel.findOne({ name: { $regex: intent.compareNames[1], $options: 'i' } })
+                    .select('-image -bgcolor -panelcolor -textcolor')
+                    .populate('seller', 'shopName')
+            ]);
+            products = [p1, p2].filter(Boolean);
+
+        } else {
+            // Normal search with progressive broadening
+            const query = buildQuery(intent);
+            const sortOption = getSortOption(intent);
+
+            products = await productModel
+                .find(query)
+                .select('-image -bgcolor -panelcolor -textcolor')
+                .populate('seller', 'shopName')
+                .sort(sortOption)
+                .limit(5);
+
+            // Broaden: try keyword search
+            if (products.length === 0 && intent.keywords.length > 0) {
+                products = await productModel
+                    .find({
+                        stock: { $gt: 0 },
+                        name: { $regex: intent.keywords.join('|'), $options: 'i' }
+                    })
+                    .select('-image -bgcolor -panelcolor -textcolor')
+                    .populate('seller', 'shopName')
+                    .sort(sortOption)
+                    .limit(5);
+            }
+
+            // Broaden: try just category
+            if (products.length === 0 && (intent.category || intent.categories.length > 0)) {
+                const catQuery = { stock: { $gt: 0 } };
+                if (intent.category) catQuery.category = intent.category;
+                else catQuery.category = { $in: intent.categories };
+
+                products = await productModel
+                    .find(catQuery)
+                    .select('-image -bgcolor -panelcolor -textcolor')
+                    .populate('seller', 'shopName')
+                    .sort(sortOption)
+                    .limit(5);
+            }
+
+            // Fallback: top 5 newest in-stock products
+            if (products.length === 0) {
+                products = await productModel
+                    .find({ stock: { $gt: 0 } })
+                    .select('-image -bgcolor -panelcolor -textcolor')
+                    .populate('seller', 'shopName')
+                    .sort({ createdAt: -1 })
+                    .limit(5);
+            }
+        }
+
+        // Step 3: Get ratings
+        const productIds = products.map(p => p._id);
+        const ratingMap = await getProductRatings(productIds);
+
+        // Step 4: Format for Gemini
+        const productsContext = formatProductsForAI(products, ratingMap);
+        const systemPrompt = SYSTEM_PROMPT.replace('{PRODUCTS}', productsContext);
+
+        // Step 5: Build conversation contents
+        const contents = [];
+
+        if (history && Array.isArray(history)) {
+            history.slice(-6).forEach(function(msg) {
+                contents.push({
+                    role: msg.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.content }]
+                });
+            });
+        }
+
+        contents.push({
+            role: 'user',
+            parts: [{ text: userMessage }]
+        });
+
+        // Step 6: Call Gemini
+        const geminiModel = getModel();
+
+        const result = await geminiModel.generateContent({
+            contents,
+            systemInstruction: systemPrompt,
+            generationConfig: {
+                temperature: 0.75,
+                maxOutputTokens: 600,
+                topP: 0.9,
+            }
+        });
+
+        const reply = result.response.text();
+
+        // Step 7: Return response
+        const productData = products.map(function(p) {
+            return {
+                _id: p._id,
+                name: p.name,
+                price: p.price,
+                discount: p.discount || 0,
+                category: p.category,
+                stock: p.stock,
+                avgRating: ratingMap[p._id.toString()]?.avgRating || 0,
+                totalReviews: ratingMap[p._id.toString()]?.totalReviews || 0
+            };
+        });
+
+        res.json({ reply, products: productData });
+
+    } catch (err) {
+        console.error('AI Chat Error:', err.message);
+
+        let errorMessage = "I'm having trouble right now. Please try again in a moment! 🙏";
+
+        if (err.message && err.message.includes('API_KEY')) {
+            errorMessage = "AI assistant is not configured yet. Please add your Gemini API key. 🔧";
+        } else if (err.message && (err.message.includes('quota') || err.message.includes('rate') || err.message.includes('429'))) {
+            errorMessage = "I'm getting too many questions! Please wait a few seconds and try again. ⏳";
+        } else if (err.code === 'ETIMEDOUT' || err.code === 'ECONNRESET') {
+            errorMessage = "That took too long. Could you try asking again? ⏱️";
+        }
+
+        res.status(500).json({ reply: errorMessage, products: [] });
+    }
+};
+
+
+--- controllers/authController.js ---
+const userModel = require('../models/user-model');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const{generateToken} = require('../utils/generateToken');
+
+module.exports.registerUser = async function(req, res){
+    try{
+        const {fullname, email, password} = req.body;
+
+        if(!fullname || !email || !password){
+            req.flash('error', 'All fields are required');
+            return res.redirect('/');
+        }
+
+        let user = await userModel.findOne({email: email});
+        if(user){
+            req.flash('error', 'User already exists with this email, Please login');
+            return res.redirect('/');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+
+        let createdUser = await userModel.create({
+            fullname,
+            email,
+            password: hash,
+        });
+                    
+        let token = generateToken(createdUser);
+        res.cookie("token", token);
+        res.redirect("/shop");
+    }catch(err){
+        console.log(err.message);
+        req.flash('error', 'Something went wrong, please try again');
+        res.redirect('/');
+    }
+} 
+
+module.exports.loginUser = async function(req, res){
+    try{
+        let {email, password} = req.body;
+
+        if(!email || !password){
+            req.flash('error', 'Email and password are required');
+            return res.redirect('/');
+        }
+
+        let user = await userModel.findOne({email: email});
+        if(!user){
+            req.flash('error', 'Email or password is incorrect');
+            return res.redirect('/');
+        }
+
+        let result = await bcrypt.compare(password, user.password);
+        if(result){
+            let token = generateToken(user);
+            res.cookie("token", token);
+            res.redirect("/shop");
+        }
+        else{
+            req.flash('error', 'Email or password is incorrect');
+            res.redirect('/');
+        }
+    }catch(err){
+        console.log(err.message);
+        req.flash('error', 'Something went wrong, please try again');
+        res.redirect('/');
+    }
+}
+
+--- controllers/paymentController.js ---
+const razorpayInstance = require("../config/razorpay.config");
+const crypto = require("crypto");
+const orderModel = require("../models/order-model");
+const userModel = require("../models/user-model");
+const productModel = require("../models/product-model");
+
+exports.createOrder = async (req, res) => {
+
+    try {
+
+        const user = await userModel
+            .findById(req.user._id)
+            .populate("cart");
+
+        if (!user || user.cart.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Cart is empty"
+            });
+        }
+
+        // Check stock availability
+        for (let product of user.cart) {
+            if (product.stock <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `${product.name} is out of stock`
+                });
+            }
+        }
+
+        let totalAmount = 0;
+
+        user.cart.forEach(product => {
+            totalAmount += Number(product.price) - Number(product.discount || 0);
+        });
+
+        // Platform Fee
+        totalAmount += 20;
+
+        const options = {
+            amount: totalAmount * 100, // Razorpay accepts amount in paise
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`
+        };
+
+        const order = await razorpayInstance.orders.create(options);
+
+        res.status(200).json({
+            success: true,
+            key: process.env.RAZORPAY_KEY_ID,
+            order,
+            amount: totalAmount
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to create Razorpay Order"
+        });
+
+    }
+
+};
+exports.verifyPayment = async (req, res) => {
+
+    try {
+
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature
+        } = req.body;
+
+        const generatedSignature = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(
+                razorpay_order_id + "|" + razorpay_payment_id
+            )
+            .digest("hex");
+
+        if (generatedSignature !== razorpay_signature) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Payment Verification Failed"
+            });
+
+        }
+
+        // ===== Payment Verified =====
+
+        // 1. User fetch karo
+        const user = await userModel
+            .findById(req.user._id)
+            .populate("cart");
+
+        // 2. Bill calculate karo
+        const totalAmount = user.cart.reduce((sum, product) => {
+            return sum + (product.price - product.discount);
+        }, 20);
+
+        // 3. Order save karo
+        const order = await orderModel.create({
+
+            user: user._id,
+
+            products: user.cart.map(product => product._id),
+
+            totalAmount,
+
+            status: "Payment Confirmed",
+
+            paymentId: razorpay_payment_id,
+
+            statusHistory: [
+                { status: 'Pending', date: new Date() },
+                { status: 'Payment Confirmed', date: new Date() }
+            ]
+
+        });
+
+        // 4. Reduce stock for each purchased product
+        for (let product of user.cart) {
+            await productModel.findByIdAndUpdate(product._id, {
+                $inc: { stock: -1 }
+            });
+        }
+
+// user order array m save
+         user.orders.push(order._id);
+        // 5. Cart empty karo
+        user.cart = [];
+
+        await user.save();
+
+        // 6. Response bhejo
+        return res.json({
+
+            success: true,
+
+            message: "Payment Verified Successfully",
+
+            redirect: "/orders"
+
+        });
+
+    } catch (err) {
+
+        console.log(err);
+
+        res.status(500).json({
+            success: false,
+            message: "Server Error"
+        });
+
+    }
+
+
+};
+
+--- middlewares/isAdmin.js ---
+module.exports = function(req, res, next){
+
+    if(req.user.role !== "admin"){
+
+        req.flash("error","Access Denied");
+
+        res.redirect("/owners/dashboard");
+
+    }
+
+    next();
+
+}
+
+--- middlewares/isLoggedIn.js ---
+const jwt = require('jsonwebtoken');
+const userModel = require('../models/user-model');
+
+module.exports = async function(req, res, next){
+
+  const token = req.cookies.token;
+  
+  if(!token){
+    req.flash('error', "you need to login first");
+    return res.redirect('/');
+  }
+
+  try{ 
+    let decoded = jwt.verify(token, process.env.JWT_KEY);
+    let user = await userModel.findOne({email: decoded.email}).select('-password');
+    req.user = user;
+    next();
+  }catch(err){
+    req.flash('error', "you need to login first");
+    res.redirect('/');
+  }
+};
+
+--- middlewares/isOwnerLoggedIn.js ---
+const jwt = require('jsonwebtoken');
+const ownerModel = require('../models/owner-model');
+
+module.exports = async function(req, res, next){
+
+  const token = req.cookies.ownerToken;
+  
+  if(!token){
+    req.flash('error', "You need to login as admin first");
+    return res.redirect('/owners/login');
+  }
+
+  try{ 
+    let decoded = jwt.verify(token, process.env.JWT_KEY);
+    let owner = await ownerModel.findOne({email: decoded.email}).select('-password');
+    if(!owner){
+      req.flash('error', "You need to login as admin first");
+      return res.redirect('/owners/login');
+    }
+    req.owner = owner;
+    next();
+  }catch(err){
+    req.flash('error', "You need to login as admin first");
+    res.redirect('/owners/login');
+  }
+};
+
+
+--- middlewares/isSellerLoggedIn.js ---
+const jwt = require('jsonwebtoken');
+const sellerModel = require('../models/seller-model');
+
+module.exports = async function(req, res, next){
+
+  const token = req.cookies.sellerToken;
+  
+  if(!token){
+    req.flash('error', "You need to login as seller first");
+    return res.redirect('/sellers/login');
+  }
+
+  try{ 
+    let decoded = jwt.verify(token, process.env.JWT_KEY);
+    let seller = await sellerModel.findOne({email: decoded.email}).select('-password');
+    if(!seller){
+      req.flash('error', "You need to login as seller first");
+      return res.redirect('/sellers/login');
+    }
+    if(seller.isBlocked){
+      res.clearCookie('sellerToken');
+      req.flash('error', "Your account has been blocked. Please contact admin.");
+      return res.redirect('/sellers/login');
+    }
+    if(!seller.isApproved){
+      res.clearCookie('sellerToken');
+      req.flash('error', "Your account is pending admin approval.");
+      return res.redirect('/sellers/login');
+    }
+    req.seller = seller;
+    next();
+  }catch(err){
+    req.flash('error', "You need to login as seller first");
+    res.redirect('/sellers/login');
+  }
+};
+
+
+--- utils/generateInvoice.js ---
+const PDFDocument = require('pdfkit');
+const QRCode = require('qrcode');
+const path = require('path');
+const fs = require('fs');
+
+async function generateInvoicePDF(order, res, reqHost) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const doc = new PDFDocument({ margin: 50, size: 'A4' });
+            
+            // Pipe output to response
+            doc.pipe(res);
+
+            // Invoice details
+            const invoiceNumber = `INV-${new Date(order.createdAt).getFullYear()}-${order._id.toString().slice(-6).toUpperCase()}`;
+            const invoiceDate = new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            // Generate QR Code
+            const orderUrl = `${reqHost}/product/${order.products[0]?._id}`; // Just linking to first product or shop
+            const qrData = `Invoice: ${invoiceNumber}\nOrder ID: ${order._id}\nPayment ID: ${order.paymentId || 'N/A'}\nTotal: Rs. ${order.totalAmount}\nURL: ${orderUrl}`;
+            const qrBuffer = await QRCode.toBuffer(qrData, { width: 100, margin: 1 });
+
+            // 1. Header (Logo & Company Info)
+            doc.fillColor('#111827')
+               .fontSize(24)
+               .font('Helvetica-Bold')
+               .text('ShopSphere', 50, 50);
+
+            doc.fontSize(10)
+               .font('Helvetica')
+               .fillColor('#4b5563')
+               .text('Premium Bag Collection', 50, 80)
+               .text('support@shopsphere.com', 50, 95)
+               .text('www.shopsphere.com', 50, 110);
+
+            // Invoice Title & Info
+            doc.fillColor('#111827')
+               .fontSize(20)
+               .font('Helvetica-Bold')
+               .text('INVOICE', 400, 50, { align: 'right' });
+            
+            doc.fontSize(10)
+               .font('Helvetica-Bold')
+               .text('Invoice Number:', 330, 80)
+               .font('Helvetica')
+               .text(invoiceNumber, 420, 80);
+               
+            doc.font('Helvetica-Bold')
+               .text('Invoice Date:', 330, 95)
+               .font('Helvetica')
+               .text(invoiceDate, 420, 95);
+               
+            doc.font('Helvetica-Bold')
+               .text('Order ID:', 330, 110)
+               .font('Helvetica')
+               .text(order._id.toString(), 420, 110);
+
+            // Line Break
+            doc.moveTo(50, 140).lineTo(545, 140).lineWidth(1).strokeColor('#e5e7eb').stroke();
+
+            // 2. Customer & Seller Details
+            doc.fontSize(12).font('Helvetica-Bold').fillColor('#111827').text('Bill To:', 50, 160);
+            doc.fontSize(10).font('Helvetica').fillColor('#4b5563')
+               .text(order.user.fullname, 50, 180)
+               .text(order.user.email, 50, 195);
+               
+            if (order.user.phone) {
+                doc.text(order.user.phone, 50, 210);
+            }
+
+            // Extract Seller Info from the first product (Simplified for now)
+            let sellerInfo = 'ShopSphere Official';
+            let sellerContact = '';
+            if (order.products.length > 0 && order.products[0].seller) {
+                const seller = order.products[0].seller;
+                sellerInfo = seller.shopName || seller.fullname;
+                if(seller.email) sellerContact = seller.email;
+            }
+
+            doc.fontSize(12).font('Helvetica-Bold').fillColor('#111827').text('Sold By:', 300, 160);
+            doc.fontSize(10).font('Helvetica').fillColor('#4b5563')
+               .text(sellerInfo, 300, 180);
+            if(sellerContact) {
+                doc.text(sellerContact, 300, 195);
+            }
+
+            doc.moveTo(50, 240).lineTo(545, 240).lineWidth(1).strokeColor('#e5e7eb').stroke();
+
+            // 3. Payment Details
+            doc.fontSize(10)
+               .font('Helvetica-Bold').text('Payment Method:', 50, 260)
+               .font('Helvetica').text('Razorpay / Online', 150, 260)
+               .font('Helvetica-Bold').text('Payment Status:', 300, 260)
+               .font('Helvetica').text(order.status === 'Pending' ? 'Pending' : 'Paid', 400, 260);
+
+            if (order.paymentId) {
+                doc.font('Helvetica-Bold').text('Payment ID:', 50, 275)
+                   .font('Helvetica').text(order.paymentId, 150, 275);
+            }
+
+            // 4. Products Table
+            let y = 320;
+            
+            // Table Header
+            doc.fillColor('#f3f4f6').rect(50, y, 495, 25).fill();
+            doc.fillColor('#111827').font('Helvetica-Bold').fontSize(10);
+            doc.text('Product Name', 60, y + 8);
+            doc.text('Category', 250, y + 8);
+            doc.text('Qty', 350, y + 8, { width: 30, align: 'center' });
+            doc.text('Unit Price', 400, y + 8, { width: 60, align: 'right' });
+            doc.text('Final Price', 470, y + 8, { width: 65, align: 'right' });
+            
+            y += 35;
+            doc.font('Helvetica').fillColor('#4b5563');
+
+            // Count occurrences for quantities
+            const productCounts = {};
+            order.products.forEach(p => {
+                if(!p) return;
+                const pid = p._id.toString();
+                if(productCounts[pid]) {
+                    productCounts[pid].qty += 1;
+                } else {
+                    productCounts[pid] = {
+                        ...p._doc, // Get mongoose doc
+                        qty: 1
+                    };
+                }
+            });
+
+            let subtotal = 0;
+            let totalDiscount = 0;
+
+            for (const pid in productCounts) {
+                const item = productCounts[pid];
+                
+                doc.text(item.name.substring(0, 30) + (item.name.length > 30 ? '...' : ''), 60, y);
+                doc.text(item.category || 'General', 250, y);
+                doc.text(item.qty.toString(), 350, y, { width: 30, align: 'center' });
+                
+                const unitPrice = item.price;
+                const unitDiscount = item.discount || 0;
+                const finalUnitPrice = unitPrice - unitDiscount;
+                const lineTotal = finalUnitPrice * item.qty;
+                
+                subtotal += (unitPrice * item.qty);
+                totalDiscount += (unitDiscount * item.qty);
+
+                doc.text('Rs. ' + unitPrice, 400, y, { width: 60, align: 'right' });
+                doc.text('Rs. ' + lineTotal, 470, y, { width: 65, align: 'right' });
+
+                y += 25;
+                
+                if (y > 650) {
+                    doc.addPage();
+                    y = 50;
+                }
+            }
+
+            doc.moveTo(50, y).lineTo(545, y).lineWidth(1).strokeColor('#e5e7eb').stroke();
+            y += 20;
+
+            // 5. Pricing Summary
+            const gst = Math.round((subtotal - totalDiscount) * 0.18);
+            const shipping = 20; // Default flat shipping fee
+            const grandTotal = order.totalAmount; 
+
+            doc.font('Helvetica-Bold').fillColor('#111827');
+            doc.text('Subtotal:', 350, y, { width: 100, align: 'right' });
+            doc.font('Helvetica').text('Rs. ' + subtotal, 450, y, { width: 85, align: 'right' });
+            y += 20;
+
+            doc.font('Helvetica-Bold');
+            doc.text('Discount:', 350, y, { width: 100, align: 'right' });
+            doc.font('Helvetica').text('- Rs. ' + totalDiscount, 450, y, { width: 85, align: 'right' });
+            y += 20;
+
+            doc.font('Helvetica-Bold');
+            doc.text('Shipping:', 350, y, { width: 100, align: 'right' });
+            doc.font('Helvetica').text('Rs. ' + shipping, 450, y, { width: 85, align: 'right' });
+            y += 20;
+
+            doc.font('Helvetica-Bold').fontSize(14).fillColor('#d4882e');
+            doc.text('Grand Total:', 350, y, { width: 100, align: 'right' });
+            doc.text('Rs. ' + grandTotal, 450, y, { width: 85, align: 'right' });
+
+            // 6. QR Code
+            doc.image(qrBuffer, 440, y + 40, { width: 90 });
+
+            // 7. Footer
+            const footerY = 750;
+            doc.moveTo(50, footerY - 10).lineTo(545, footerY - 10).lineWidth(1).strokeColor('#e5e7eb').stroke();
+            doc.fontSize(10).font('Helvetica-Bold').fillColor('#111827').text('Thank you for shopping with ShopSphere!', 50, footerY, { align: 'center' });
+            doc.fontSize(9).font('Helvetica').fillColor('#6b7280').text('For support: support@shopsphere.com | www.shopsphere.com', 50, footerY + 15, { align: 'center' });
+
+            doc.end();
+            resolve();
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+module.exports = { generateInvoicePDF };
+
+
+--- utils/generateToken.js ---
+const jwt = require('jsonwebtoken');
+
+const generateToken = (user)=>{
+      let token = jwt.sign({email:user.email,id:user._id,role:user.role},process.env.JWT_KEY)
+      return token;
+}
+ 
+module.exports.generateToken = generateToken;
+
+--- routes/aiRouter.js ---
+const express = require('express');
+const router = express.Router();
+const isLoggedIn = require('../middlewares/isLoggedIn');
+const aiController = require('../controllers/aiController');
+
+router.post('/chat', isLoggedIn, aiController.chat);
+
+module.exports = router;
+
+
+--- routes/index.js ---
+const express = require('express');
+const router = express.Router();
+const isLoggedIn = require('../middlewares/isLoggedIn');
+const productModel = require('../models/product-model');
+const userModel = require('../models/user-model');
+const orderModel = require('../models/order-model');
+const reviewModel = require('../models/review-model');
+const sellerModel = require('../models/seller-model');
+
+
+
+router.get('/', (req, res) => {
+  let error = req.flash('error');
+  res.render('index', { error: error, loggedin: false });
+});
+router.get('/shop', isLoggedIn, async function(req, res) {
+
+    let success = req.flash("success");
+
+    // Read Query Parameters
+    const search = req.query.search || "";
+    const sort = req.query.sort || "popular";
+    const price = req.query.price || "";
+    const category = req.query.category || "";
+
+    // Dynamic Query
+    let query = {
+        name: {
+            $regex: search,
+            $options: "i"
+        }
+    };
+
+    // Category Filter
+    if(category){
+        query.category = category;
+    }
+
+    // Price Filter
+    if(price === "0-1000"){
+        query.price = {
+            $gte: 0,
+            $lte: 1000
+        };
+    }
+    else if(price === "1000-3000"){
+        query.price = {
+            $gte: 1000,
+            $lte: 3000
+        };
+    }
+    else if(price === "3000+"){
+        query.price = {
+            $gte: 3000
+        };
+    }
+
+    // Sorting
+    let sortOption = {};
+
+    if(sort === "price-low"){
+        sortOption = { price: 1 };
+    }
+    else if(sort === "price-high"){
+        sortOption = { price: -1 };
+    }
+    else if(sort === "newest"){
+        sortOption = { createdAt: -1 };
+    }
+
+    // Fetch Products
+    const products = await productModel
+        .find(query)
+        .populate('seller', 'shopName')
+        .sort(sortOption);
+
+    // Get all distinct categories for sidebar
+    const categories = await productModel.distinct('category');
+
+    // Render Page
+    res.render("shop",{
+        products,
+        success,
+        search,
+        sort,
+        price,
+        category,
+        categories,
+        loggedin: true
+    });
+
+});
+
+router.get('/cart',isLoggedIn, async (req, res) => {
+  let user = await userModel.findOne({email : req.user.email}).populate('cart');
+  
+  let bill = 0;
+  if(user.cart.length > 0){
+    user.cart.forEach(item => {
+      bill += Number(item.price) - Number(item.discount || 0);
+    });
+    bill += 20; // platform fee (once, not per item)
+  }
+
+  res.render("cart", {
+        user,
+        bill,
+        loggedin: true
+    });
+});
+
+
+router.get('/add-to-cart/:id',isLoggedIn, async (req, res) => {
+  let product = await productModel.findById(req.params.id);
+  if(!product || product.stock <= 0){
+    req.flash('error', 'Product is out of stock');
+    return res.redirect('/shop');
+  }
+  let user = await userModel.findOne({email : req.user.email});
+  user.cart.push(req.params.id);
+  await user.save();
+  req.flash('success', 'Product added to cart successfully');
+  res.redirect('/shop');
+});
+
+router.get('/remove-from-cart/:id',isLoggedIn, async (req, res) => {
+  let user = await userModel.findOne({email : req.user.email});
+  let index = user.cart.indexOf(req.params.id);
+  if(index !== -1){
+    user.cart.splice(index, 1);
+    await user.save();
+  }
+  req.flash('success', 'Product removed from cart');
+  res.redirect('/cart');
+});
+
+router.get('/logout', isLoggedIn, (req, res) => {
+  res.clearCookie('token');
+  res.redirect('/');
+});
+
+router.get('/place-order', isLoggedIn, async function(req, res){
+
+    let user = await userModel
+        .findOne({ email: req.user.email })
+        .populate("cart");
+
+    if(user.cart.length === 0){
+        req.flash("error", "Cart is empty");
+        return res.redirect("/cart");
+    }
+
+    let totalAmount = 0;
+
+    user.cart.forEach(function(product){
+        totalAmount += product.price - product.discount;
+    });
+
+    let order = await orderModel.create({
+        user: user._id,
+        products: user.cart.map(product => product._id),
+        totalAmount
+    });
+
+    user.orders.push(order._id);
+
+    user.cart = [];
+
+    await user.save();
+
+    req.flash("success", "Order placed successfully");
+
+    res.redirect("/shop");
+});
+  
+
+router.get('/orders', isLoggedIn, async function(req, res){
+
+    let user = await userModel
+        .findOne({ email: req.user.email })
+        .populate({
+            path: 'orders',
+            populate: {
+                path: 'products'
+            }
+        });
+
+    res.render('orders', {
+        user,
+        loggedin: true
+    });
+});
+
+router.get('/profile', isLoggedIn, async function(req, res){
+
+    let user = await userModel
+        .findOne({ email: req.user.email })
+        .populate('cart')
+        .populate('orders');
+
+    res.render('profile', {
+        user,
+        loggedin: true
+    });
+});
+
+router.get("/checkout", isLoggedIn, async function(req, res){
+
+    let user = await userModel
+        .findOne({ email: req.user.email })
+        .populate("cart");
+
+    if(user.cart.length === 0){
+        req.flash("error","Cart is empty");
+        return res.redirect("/cart");
+    }
+
+    // Stock validation at checkout
+    for(let product of user.cart){
+        if(product.stock <= 0){
+            req.flash("error", `${product.name} is out of stock. Please remove it from cart.`);
+            return res.redirect("/cart");
+        }
+    }
+
+    let bill = 0;
+
+    user.cart.forEach(product=>{
+        bill += Number(product.price) - Number(product.discount || 0);
+    });
+
+    bill += 20;
+
+    res.render("checkout",{
+        user,
+        bill,
+        loggedin:true
+    });
+
+});
+
+// ===== Product Details =====
+router.get('/product/:id', isLoggedIn, async function(req, res){
+    try{
+        let product = await productModel.findById(req.params.id).populate('seller', 'shopName shopLogo');
+        if(!product){
+            req.flash('error', 'Product not found');
+            return res.redirect('/shop');
+        }
+
+        let user = await userModel.findOne({ email: req.user.email }).populate('orders');
+
+        // Check if user has purchased this product
+        let hasPurchased = false;
+        user.orders.forEach(order => {
+            order.products.forEach(pid => {
+                if(pid.toString() === product._id.toString()) hasPurchased = true;
+            });
+        });
+
+        // Get all reviews for this product
+        let reviews = await reviewModel.find({ product: product._id })
+            .populate('user', 'fullname')
+            .sort({ createdAt: -1 });
+
+        // Check if user already reviewed
+        let hasReviewed = await reviewModel.findOne({
+            product: product._id,
+            user: user._id
+        });
+
+        // Average rating
+        let avgRating = 0;
+        if(reviews.length > 0){
+            avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+            avgRating = Math.round(avgRating * 10) / 10;
+        }
+
+        // Related products (same category, exclude current)
+        let relatedProducts = await productModel.find({
+            category: product.category,
+            _id: { $ne: product._id }
+        }).limit(4);
+
+        // Check if product is in user's wishlist
+        let inWishlist = user.wishlist && user.wishlist.some(id => id.toString() === product._id.toString());
+
+        res.render('product-details', {
+            product,
+            reviews,
+            avgRating,
+            hasPurchased,
+            hasReviewed: !!hasReviewed,
+            relatedProducts,
+            inWishlist,
+            loggedin: true
+        });
+    }catch(err){
+        console.log(err);
+        res.redirect('/shop');
+    }
+});
+
+// ===== Submit Review =====
+router.post('/product/:id/review', isLoggedIn, async function(req, res){
+    try{
+        let user = await userModel.findOne({ email: req.user.email });
+        let { rating, comment } = req.body;
+
+        // Validate purchase
+        let orders = await orderModel.find({ user: user._id });
+        let hasPurchased = false;
+        orders.forEach(order => {
+            order.products.forEach(pid => {
+                if(pid.toString() === req.params.id) hasPurchased = true;
+            });
+        });
+
+        if(!hasPurchased){
+            req.flash('error', 'You can only review products you have purchased');
+            return res.redirect('/product/' + req.params.id);
+        }
+
+        await reviewModel.create({
+            user: user._id,
+            product: req.params.id,
+            rating: Number(rating),
+            comment
+        });
+
+        res.redirect('/product/' + req.params.id);
+    }catch(err){
+        console.log(err);
+        res.redirect('/product/' + req.params.id);
+    }
+});
+
+// ===== Wishlist =====
+router.get('/wishlist', isLoggedIn, async function(req, res){
+    let user = await userModel.findOne({ email: req.user.email }).populate('wishlist');
+    res.render('wishlist', {
+        user,
+        loggedin: true
+    });
+});
+
+router.get('/add-to-wishlist/:id', isLoggedIn, async function(req, res){
+    let user = await userModel.findOne({ email: req.user.email });
+    if(!user.wishlist.includes(req.params.id)){
+        user.wishlist.push(req.params.id);
+        await user.save();
+    }
+    req.flash('success', 'Added to wishlist');
+    res.redirect('back');
+});
+
+router.get('/remove-from-wishlist/:id', isLoggedIn, async function(req, res){
+    let user = await userModel.findOne({ email: req.user.email });
+    let index = user.wishlist.indexOf(req.params.id);
+    if(index !== -1){
+        user.wishlist.splice(index, 1);
+        await user.save();
+    }
+    req.flash('success', 'Removed from wishlist');
+    res.redirect('back');
+});
+
+// ===== Cancel Order =====
+router.get('/orders/:id/cancel', isLoggedIn, async function(req, res){
+    try{
+        let order = await orderModel.findById(req.params.id).populate('products');
+        if(!order){
+            req.flash('error', 'Order not found');
+            return res.redirect('/orders');
+        }
+
+        // Only allow cancel if Pending or Payment Confirmed
+        if(order.status !== 'Pending' && order.status !== 'Payment Confirmed'){
+            req.flash('error', 'Order cannot be cancelled after it has been packed');
+            return res.redirect('/orders');
+        }
+
+        order.status = 'Cancelled';
+        order.statusHistory.push({ status: 'Cancelled', date: new Date() });
+        await order.save();
+
+        // Restore stock
+        for(let product of order.products){
+            await productModel.findByIdAndUpdate(product._id, {
+                $inc: { stock: 1 }
+            });
+        }
+
+        req.flash('success', 'Order cancelled successfully');
+        res.redirect('/orders');
+    }catch(err){
+        console.log(err);
+        res.redirect('/orders');
+    }
+});
+
+// ===== Public Seller Store Page =====
+router.get('/seller/:id', isLoggedIn, async function(req, res){
+    try{
+        let seller = await sellerModel.findById(req.params.id).select('-password');
+        if(!seller || !seller.isApproved || seller.isBlocked){
+            req.flash('error', 'Seller not found');
+            return res.redirect('/shop');
+        }
+        let products = await productModel.find({ seller: seller._id });
+        res.render('seller-store', {
+            seller,
+            products,
+            loggedin: true
+        });
+    }catch(err){
+        console.log(err);
+        res.redirect('/shop');
+    }
+});
+
+// ===== Download Invoice (Customer) =====
+router.get('/orders/:id/invoice', isLoggedIn, async function(req, res) {
+    try {
+        let order = await orderModel.findById(req.params.id)
+            .populate('user')
+            .populate({
+                path: 'products',
+                populate: {
+                    path: 'seller',
+                    model: 'sellers'
+                }
+            });
+
+        if (!order) {
+            req.flash('error', 'Order not found');
+            return res.redirect('/orders');
+        }
+
+        // Verify ownership
+        if (order.user._id.toString() !== req.user._id.toString()) {
+            req.flash('error', 'Unauthorized access to invoice');
+            return res.redirect('/orders');
+        }
+
+        if (order.status !== 'Delivered' && order.status !== 'Shipped' && order.status !== 'Paid' && order.status !== 'Pending') {
+            // Usually we allow if it's paid or placed. If it's cancelled, maybe not.
+            if(order.status === 'Cancelled') {
+                req.flash('error', 'Cannot generate invoice for cancelled orders');
+                return res.redirect('/orders');
+            }
+        }
+
+        const { generateInvoicePDF } = require('../utils/generateInvoice');
+        
+        const invoiceNumber = `INV-${new Date(order.createdAt).getFullYear()}-${order._id.toString().slice(-6).toUpperCase()}`;
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Invoice_${invoiceNumber}.pdf`);
+
+        const reqHost = req.protocol + '://' + req.get('host');
+        await generateInvoicePDF(order, res, reqHost);
+        
+    } catch(err) {
+        console.log(err);
+        req.flash('error', 'Failed to generate invoice');
+        res.redirect('/orders');
+    }
+});
+
+module.exports = router;
+
+
+--- routes/ownerRouter.js ---
+const express = require('express');
+const router = express.Router();
+const ownerModel = require('../models/owner-model');
+const productModel = require('../models/product-model');
+const { isValidObjectId } = require('mongoose');
+const orderModel = require('../models/order-model');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const{generateToken} = require('../utils/generateToken');
+
+const userModel = require('../models/user-model');
+const reviewModel = require('../models/review-model');
+const sellerModel = require('../models/seller-model');
+const isOwnerLoggedIn = require('../middlewares/isOwnerLoggedIn');
+
+
+router.get('/', (req, res) => {
+    res.send('Owner route is working!');
+});
+
+if(process.env.NODE_ENV === "development"){
+    router.post('/create', async function(req, res){
+        let owners = await ownerModel.find({});
+        if(owners.length > 0){
+            return res.status(402).send("You dont have permission to create owner")
+        }
+        const {fullname, email, password} = req.body;
+
+            const salt = await bcrypt.genSalt(10);
+            const hash = await bcrypt.hash(password, salt);
+
+            let createdOwner = await ownerModel.create({
+                        fullname,
+                        email,
+                        password: hash,
+                    })
+         res.status(202).send(createdOwner);
+    });
+}
+
+router.get('/login', (req, res) => {
+    let error = req.flash('error');
+    res.render('owner-login', { error, loggedin: false });
+});
+
+router.post('/login', async function(req, res){
+    try{
+        let {email, password} = req.body;
+
+        if(!email || !password){
+            req.flash('error', 'Email and password are required');
+            return res.redirect('/owners/login');
+        }
+
+        let owner = await ownerModel.findOne({email: email});
+        if(!owner){
+            req.flash('error', 'Email or password is incorrect');
+            return res.redirect('/owners/login');
+        }
+
+        let result = await bcrypt.compare(password, owner.password);
+        if(result){
+            let token = generateToken(owner);
+            res.cookie("ownerToken", token);
+            res.redirect("/owners/dashboard");
+        }
+        else{
+            req.flash('error', 'Email or password is incorrect');
+            res.redirect('/owners/login');
+        }
+    }catch(err){
+        console.log(err.message);
+        req.flash('error', 'Something went wrong, please try again');
+        res.redirect('/owners/login');
+    }
+});
+
+router.get('/admin', isOwnerLoggedIn, async function(req, res){
+
+    let success = req.flash("success");
+
+    const products = await productModel.find();
+
+    const totalProducts = await productModel.countDocuments();
+
+    const totalOrders = await orderModel.countDocuments();
+
+    const orders = await orderModel.find();
+
+    const revenue = orders.reduce((sum, order) => {
+        return sum + order.totalAmount;
+    }, 0);
+
+    res.render("createproducts",{
+        success,
+        products,
+        totalProducts,
+        totalOrders,
+        revenue,
+        loggedin:true
+    });
+
+});
+
+router.get('/delete/:id', isOwnerLoggedIn, async function(req, res){
+
+    try{
+
+        await productModel.findByIdAndDelete(req.params.id);
+
+        req.flash("success","Product deleted successfully");
+
+        res.redirect("/owners/admin");
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send(err);
+
+    }
+
+});
+
+router.get('/edit/:id', isOwnerLoggedIn, async function(req, res){
+
+    let product = await productModel.findById(req.params.id);
+
+    res.render('editproduct', {
+        product,
+        loggedin: true
+    });
+
+});
+
+router.post('/edit/:id', isOwnerLoggedIn, async function(req, res){
+
+    let {name, price, discount, category, stock, bgcolor, panelcolor, textcolor} = req.body;
+
+    await productModel.findByIdAndUpdate(req.params.id, {
+
+        name,
+        price,
+        discount,
+        category: category || 'General',
+        stock: stock || 0,
+        bgcolor,
+        panelcolor,
+        textcolor
+
+    });
+
+    req.flash('success', 'Product updated successfully');
+
+    res.redirect('/owners/admin');
+
+});
+
+router.get("/dashboard", isOwnerLoggedIn, async (req, res) => {
+
+    const totalProducts = await productModel.countDocuments();
+    const totalOrders = await orderModel.countDocuments();
+    const totalCustomers = await userModel.countDocuments();
+
+    const orders = await orderModel.find();
+    const revenue = orders.reduce((sum, order) => {
+        return sum + order.totalAmount;
+    }, 0);
+
+    // Top 5 Selling Products
+    const topProducts = await orderModel.aggregate([
+        { $unwind: '$products' },
+        { $group: { _id: '$products', totalSold: { $sum: 1 }, totalRevenue: { $sum: '$totalAmount' } } },
+        { $sort: { totalSold: -1 } },
+        { $limit: 5 },
+        { $lookup: { from: 'products', localField: '_id', foreignField: '_id', as: 'product' } },
+        { $unwind: '$product' }
+    ]);
+
+    // Low Stock Products (stock < 5)
+    const lowStockProducts = await productModel.find({ stock: { $lt: 5 } }).sort({ stock: 1 }).limit(10);
+
+    // Latest 5 Orders
+    const latestOrders = await orderModel.find()
+        .populate('user')
+        .populate('products')
+        .sort({ createdAt: -1 })
+        .limit(5);
+
+    // Latest 5 Customers
+    const latestCustomers = await userModel.find()
+        .select('-password')
+        .sort({ _id: -1 })
+        .limit(5);
+
+    res.render("owner-dashboard",{
+        loggedin:true,
+        isAdmin:true,
+        totalProducts,
+        totalOrders,
+        totalCustomers,
+        revenue,
+        topProducts,
+        lowStockProducts,
+        latestOrders,
+        latestCustomers
+    });
+
+});
+
+router.get('/products', isOwnerLoggedIn, async function(req, res){
+    let success = req.flash("success");
+    const products = await productModel.find().sort({ createdAt: -1 });
+    res.render('admin-products', {
+        products,
+        success,
+        loggedin: true
+    });
+});
+
+router.get('/orders', isOwnerLoggedIn, async function(req, res){
+    const orders = await orderModel.find()
+        .populate('user')
+        .populate('products')
+        .sort({ createdAt: -1 });
+    res.render('admin-orders', {
+        orders,
+        loggedin: true
+    });
+});
+
+// Admin: Update Order Status
+router.post('/orders/:id/status', isOwnerLoggedIn, async function(req, res){
+    try{
+        let { status } = req.body;
+        let order = await orderModel.findById(req.params.id);
+        if(!order){
+            req.flash('error', 'Order not found');
+            return res.redirect('/owners/orders');
+        }
+        order.status = status;
+        order.statusHistory.push({ status: status, date: new Date() });
+        await order.save();
+        req.flash('success', 'Order status updated to ' + status);
+        res.redirect('/owners/orders');
+    }catch(err){
+        console.log(err);
+        res.redirect('/owners/orders');
+    }
+});
+
+router.get('/users', isOwnerLoggedIn, async function(req, res){
+    const users = await userModel.find().select('-password');
+    res.render('admin-customers', {
+        users,
+        loggedin: true
+    });
+});
+
+// Analytics Page
+router.get('/analytics', isOwnerLoggedIn, async function(req, res){
+    res.render('admin-analytics', {
+        loggedin: true
+    });
+});
+
+// Analytics API — returns JSON data for Chart.js
+router.get('/api/analytics', isOwnerLoggedIn, async function(req, res){
+    try{
+        const orders = await orderModel.find().populate('products').populate('user');
+
+        // Monthly Revenue & Orders (last 12 months)
+        const monthlyData = {};
+        const now = new Date();
+        for(let i = 11; i >= 0; i--){
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const key = d.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
+            monthlyData[key] = { revenue: 0, orders: 0 };
+        }
+        orders.forEach(order => {
+            const key = order.createdAt.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
+            if(monthlyData[key]){
+                monthlyData[key].revenue += order.totalAmount;
+                monthlyData[key].orders += 1;
+            }
+        });
+
+        // Daily Sales (last 30 days)
+        const dailyData = {};
+        for(let i = 29; i >= 0; i--){
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const key = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+            dailyData[key] = 0;
+        }
+        orders.forEach(order => {
+            const key = order.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+            if(dailyData[key] !== undefined){
+                dailyData[key] += order.totalAmount;
+            }
+        });
+
+        // Category-wise Sales
+        const categoryData = {};
+        orders.forEach(order => {
+            order.products.forEach(product => {
+                const cat = product.category || 'General';
+                if(!categoryData[cat]) categoryData[cat] = 0;
+                categoryData[cat] += product.price - (product.discount || 0);
+            });
+        });
+
+        // Top 5 Customers
+        const customerData = {};
+        orders.forEach(order => {
+            if(order.user){
+                const key = order.user._id.toString();
+                if(!customerData[key]){
+                    customerData[key] = {
+                        name: order.user.fullname,
+                        email: order.user.email,
+                        totalSpent: 0,
+                        totalOrders: 0
+                    };
+                }
+                customerData[key].totalSpent += order.totalAmount;
+                customerData[key].totalOrders += 1;
+            }
+        });
+        const topCustomers = Object.values(customerData)
+            .sort((a, b) => b.totalSpent - a.totalSpent)
+            .slice(0, 5);
+
+        // Summary stats
+        const totalRevenue = orders.reduce((s, o) => s + o.totalAmount, 0);
+        const avgOrderValue = orders.length > 0 ? Math.round(totalRevenue / orders.length) : 0;
+
+        res.json({
+            monthlyLabels: Object.keys(monthlyData),
+            monthlyRevenue: Object.values(monthlyData).map(d => d.revenue),
+            monthlyOrders: Object.values(monthlyData).map(d => d.orders),
+            dailyLabels: Object.keys(dailyData),
+            dailySales: Object.values(dailyData),
+            categoryLabels: Object.keys(categoryData),
+            categorySales: Object.values(categoryData),
+            topCustomers,
+            totalRevenue,
+            avgOrderValue,
+            totalOrders: orders.length
+        });
+
+    }catch(err){
+        console.log(err);
+        res.status(500).json({ error: 'Failed to fetch analytics' });
+    }
+});
+
+// ===== Seller Management =====
+
+router.get('/sellers', isOwnerLoggedIn, async function(req, res){
+    let success = req.flash('success');
+    const sellers = await sellerModel.find().sort({ createdAt: -1 });
+    res.render('admin-sellers', {
+        sellers,
+        success,
+        loggedin: true
+    });
+});
+
+router.post('/sellers/:id/approve', isOwnerLoggedIn, async function(req, res){
+    try{
+        await sellerModel.findByIdAndUpdate(req.params.id, { isApproved: true, isBlocked: false });
+        req.flash('success', 'Seller approved successfully');
+        res.redirect('/owners/sellers');
+    }catch(err){
+        console.log(err);
+        res.redirect('/owners/sellers');
+    }
+});
+
+router.post('/sellers/:id/block', isOwnerLoggedIn, async function(req, res){
+    try{
+        let seller = await sellerModel.findById(req.params.id);
+        seller.isBlocked = !seller.isBlocked;
+        await seller.save();
+        req.flash('success', seller.isBlocked ? 'Seller blocked' : 'Seller unblocked');
+        res.redirect('/owners/sellers');
+    }catch(err){
+        console.log(err);
+        res.redirect('/owners/sellers');
+    }
+});
+
+router.get('/sellers/:id/delete', isOwnerLoggedIn, async function(req, res){
+    try{
+        // Delete seller's products
+        await productModel.deleteMany({ seller: req.params.id });
+        // Delete the seller
+        await sellerModel.findByIdAndDelete(req.params.id);
+        req.flash('success', 'Seller and their products deleted');
+        res.redirect('/owners/sellers');
+    }catch(err){
+        console.log(err);
+        res.redirect('/owners/sellers');
+    }
+});
+
+router.get('/logout', (req, res) => {
+    res.clearCookie('ownerToken');
+    res.redirect('/owners/login');
+});
+
+// ===== Download Invoice (Admin) =====
+router.get('/orders/:id/invoice', isOwnerLoggedIn, async function(req, res) {
+    try {
+        let order = await orderModel.findById(req.params.id)
+            .populate('user')
+            .populate({
+                path: 'products',
+                populate: {
+                    path: 'seller',
+                    model: 'sellers'
+                }
+            });
+
+        if (!order) {
+            req.flash('error', 'Order not found');
+            return res.redirect('/owners/orders');
+        }
+
+        const { generateInvoicePDF } = require('../utils/generateInvoice');
+        
+        const invoiceNumber = `INV-${new Date(order.createdAt).getFullYear()}-${order._id.toString().slice(-6).toUpperCase()}`;
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Invoice_${invoiceNumber}.pdf`);
+
+        const reqHost = req.protocol + '://' + req.get('host');
+        await generateInvoicePDF(order, res, reqHost);
+        
+    } catch(err) {
+        console.log(err);
+        req.flash('error', 'Failed to generate invoice');
+        res.redirect('/owners/orders');
+    }
+});
+
+module.exports = router;
+
+--- routes/paymentRouter.js ---
+const express = require("express");
+const router = express.Router();
+
+const paymentController = require("../controllers/paymentController");
+const isLoggedIn = require("../middlewares/isLoggedIn");
+
+router.post("/create-order", isLoggedIn, paymentController.createOrder);
+router.post("/verify-payment", isLoggedIn, paymentController.verifyPayment);
+
+module.exports = router;
+
+--- routes/productsRouter.js ---
+const express = require('express');
+const router = express.Router();
+
+const upload = require('../config/multer-config');
+const productModel = require('../models/product-model');
+const isOwnerLoggedIn = require('../middlewares/isOwnerLoggedIn');
+
+router.post('/create', isOwnerLoggedIn, upload.single('image'), async function(req, res){
+    let {name,price, discount, category, stock, bgcolor, panelcolor, textcolor} = req.body;
+    try{
+        let product = await productModel.create({
+        image: req.file.buffer,
+        name,
+        price,
+        discount,
+        category: category || 'General',
+        stock: stock || 0,
+        bgcolor,
+        panelcolor,
+        textcolor
+        });
+        req.flash('success', 'Product created successfully');
+        res.redirect("/owners/admin");
+    } catch (error) {
+        res.send(error);
+    }
+});
+
+router.get('/', (req, res) => {
+    res.send('product route is working!');
+});
+
+module.exports = router;
+
+--- routes/sellerRouter.js ---
+const express = require('express');
+const router = express.Router();
+const sellerModel = require('../models/seller-model');
+const productModel = require('../models/product-model');
+const orderModel = require('../models/order-model');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const isSellerLoggedIn = require('../middlewares/isSellerLoggedIn');
+
+// ===== Auth Routes =====
+
+router.get('/login', (req, res) => {
+    let error = req.flash('error');
+    let success = req.flash('success');
+    res.render('seller-login', { error, success, loggedin: false });
+});
+
+router.get('/register', (req, res) => {
+    let error = req.flash('error');
+    res.render('seller-register', { error, loggedin: false });
+});
+
+router.post('/register', async function(req, res){
+    try{
+        let {fullname, email, password, phone, shopName, shopDescription} = req.body;
+
+        if(!fullname || !email || !password || !shopName){
+            req.flash('error', 'Name, email, password and shop name are required');
+            return res.redirect('/sellers/register');
+        }
+
+        let existing = await sellerModel.findOne({email: email});
+        if(existing){
+            req.flash('error', 'A seller account already exists with this email');
+            return res.redirect('/sellers/register');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+
+        await sellerModel.create({
+            fullname,
+            email,
+            password: hash,
+            phone: phone || null,
+            shopName,
+            shopDescription: shopDescription || '',
+            isApproved: false,
+            isBlocked: false
+        });
+
+        req.flash('success', 'Registration successful! Please wait for admin approval.');
+        res.redirect('/sellers/login');
+    }catch(err){
+        console.log(err.message);
+        req.flash('error', 'Something went wrong, please try again');
+        res.redirect('/sellers/register');
+    }
+});
+
+router.post('/login', async function(req, res){
+    try{
+        let {email, password} = req.body;
+
+        if(!email || !password){
+            req.flash('error', 'Email and password are required');
+            return res.redirect('/sellers/login');
+        }
+
+        let seller = await sellerModel.findOne({email: email});
+        if(!seller){
+            req.flash('error', 'Email or password is incorrect');
+            return res.redirect('/sellers/login');
+        }
+
+        if(seller.isBlocked){
+            req.flash('error', 'Your account has been blocked. Please contact admin.');
+            return res.redirect('/sellers/login');
+        }
+
+        if(!seller.isApproved){
+            req.flash('error', 'Your account is pending admin approval. Please wait.');
+            return res.redirect('/sellers/login');
+        }
+
+        let result = await bcrypt.compare(password, seller.password);
+        if(result){
+            let token = jwt.sign(
+                { email: seller.email, id: seller._id, role: 'seller' },
+                process.env.JWT_KEY
+            );
+            res.cookie("sellerToken", token);
+            res.redirect("/sellers/dashboard");
+        }
+        else{
+            req.flash('error', 'Email or password is incorrect');
+            res.redirect('/sellers/login');
+        }
+    }catch(err){
+        console.log(err.message);
+        req.flash('error', 'Something went wrong, please try again');
+        res.redirect('/sellers/login');
+    }
+});
+
+router.get('/logout', (req, res) => {
+    res.clearCookie('sellerToken');
+    res.redirect('/sellers/login');
+});
+
+// ===== Dashboard =====
+
+router.get('/dashboard', isSellerLoggedIn, async function(req, res){
+
+    const sellerId = req.seller._id;
+
+    const totalProducts = await productModel.countDocuments({ seller: sellerId });
+
+    // Get seller's product IDs
+    const sellerProducts = await productModel.find({ seller: sellerId }).select('_id');
+    const sellerProductIds = sellerProducts.map(p => p._id);
+
+    // Find orders containing seller's products
+    const orders = await orderModel.find({
+        products: { $in: sellerProductIds }
+    }).populate('products').populate('user');
+
+    const totalOrders = orders.length;
+
+    let revenue = 0;
+    let pendingOrders = 0;
+    let deliveredOrders = 0;
+
+    orders.forEach(order => {
+        // Calculate revenue from seller's products only
+        order.products.forEach(product => {
+            if(sellerProductIds.some(id => id.toString() === product._id.toString())){
+                revenue += product.price - (product.discount || 0);
+            }
+        });
+        if(order.status === 'Pending' || order.status === 'Payment Confirmed') pendingOrders++;
+        if(order.status === 'Delivered') deliveredOrders++;
+    });
+
+    // Recent 5 orders
+    const recentOrders = orders
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 5);
+
+    // Top selling products
+    const productSales = {};
+    orders.forEach(order => {
+        order.products.forEach(product => {
+            if(sellerProductIds.some(id => id.toString() === product._id.toString())){
+                const pid = product._id.toString();
+                if(!productSales[pid]) productSales[pid] = { product, count: 0 };
+                productSales[pid].count++;
+            }
+        });
+    });
+    const topProducts = Object.values(productSales)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+    res.render("seller-dashboard", {
+        seller: req.seller,
+        totalProducts,
+        totalOrders,
+        revenue,
+        pendingOrders,
+        deliveredOrders,
+        recentOrders,
+        topProducts,
+        loggedin: true
+    });
+});
+
+// ===== Product Management =====
+
+router.get('/products', isSellerLoggedIn, async function(req, res){
+    let success = req.flash("success");
+    const products = await productModel.find({ seller: req.seller._id }).sort({ createdAt: -1 });
+    res.render('seller-products', {
+        products,
+        success,
+        seller: req.seller,
+        loggedin: true
+    });
+});
+
+router.get('/products/create', isSellerLoggedIn, async function(req, res){
+    let success = req.flash("success");
+    res.render('seller-create-product', {
+        success,
+        seller: req.seller,
+        loggedin: true
+    });
+});
+
+router.post('/products/create', isSellerLoggedIn, async function(req, res){
+    try{
+        let {name, price, discount, category, stock, bgcolor, panelcolor, textcolor, image, description} = req.body;
+
+        await productModel.create({
+            name,
+            price,
+            discount: discount || 0,
+            category: category || 'General',
+            stock: stock || 0,
+            bgcolor: bgcolor || '#F3F4F6',
+            panelcolor: panelcolor || '#FFFFFF',
+            textcolor: textcolor || '#111827',
+            image: image || '',
+            description: description || '',
+            seller: req.seller._id
+        });
+
+        req.flash('success', 'Product created successfully');
+        res.redirect('/sellers/products');
+    }catch(err){
+        console.log(err);
+        req.flash('error', 'Failed to create product');
+        res.redirect('/sellers/products/create');
+    }
+});
+
+router.get('/products/edit/:id', isSellerLoggedIn, async function(req, res){
+    try{
+        let product = await productModel.findById(req.params.id);
+        if(!product || product.seller.toString() !== req.seller._id.toString()){
+            req.flash('error', 'Product not found or access denied');
+            return res.redirect('/sellers/products');
+        }
+        res.render('seller-edit-product', {
+            product,
+            seller: req.seller,
+            loggedin: true
+        });
+    }catch(err){
+        console.log(err);
+        res.redirect('/sellers/products');
+    }
+});
+
+router.post('/products/edit/:id', isSellerLoggedIn, async function(req, res){
+    try{
+        let product = await productModel.findById(req.params.id);
+        if(!product || product.seller.toString() !== req.seller._id.toString()){
+            req.flash('error', 'Product not found or access denied');
+            return res.redirect('/sellers/products');
+        }
+
+        let {name, price, discount, category, stock, bgcolor, panelcolor, textcolor, image, description} = req.body;
+
+        await productModel.findByIdAndUpdate(req.params.id, {
+            name,
+            price,
+            discount: discount || 0,
+            category: category || 'General',
+            stock: stock || 0,
+            bgcolor,
+            panelcolor,
+            textcolor,
+            image: image || product.image,
+            description: description || product.description
+        });
+
+        req.flash('success', 'Product updated successfully');
+        res.redirect('/sellers/products');
+    }catch(err){
+        console.log(err);
+        res.redirect('/sellers/products');
+    }
+});
+
+router.get('/products/delete/:id', isSellerLoggedIn, async function(req, res){
+    try{
+        let product = await productModel.findById(req.params.id);
+        if(!product || product.seller.toString() !== req.seller._id.toString()){
+            req.flash('error', 'Product not found or access denied');
+            return res.redirect('/sellers/products');
+        }
+
+        await productModel.findByIdAndDelete(req.params.id);
+        req.flash('success', 'Product deleted successfully');
+        res.redirect('/sellers/products');
+    }catch(err){
+        console.log(err);
+        res.redirect('/sellers/products');
+    }
+});
+
+// ===== Order Management =====
+
+router.get('/orders', isSellerLoggedIn, async function(req, res){
+    let success = req.flash('success');
+
+    const sellerProducts = await productModel.find({ seller: req.seller._id }).select('_id');
+    const sellerProductIds = sellerProducts.map(p => p._id);
+
+    const orders = await orderModel.find({
+        products: { $in: sellerProductIds }
+    })
+    .populate('user')
+    .populate('products')
+    .sort({ createdAt: -1 });
+
+    res.render('seller-orders', {
+        orders,
+        success,
+        seller: req.seller,
+        sellerProductIds,
+        loggedin: true
+    });
+});
+
+router.post('/orders/:id/status', isSellerLoggedIn, async function(req, res){
+    try{
+        let { status } = req.body;
+        const allowedStatuses = ['Packed', 'Shipped', 'Out For Delivery', 'Delivered'];
+
+        if(!allowedStatuses.includes(status)){
+            req.flash('error', 'Invalid status');
+            return res.redirect('/sellers/orders');
+        }
+
+        let order = await orderModel.findById(req.params.id).populate('products');
+        if(!order){
+            req.flash('error', 'Order not found');
+            return res.redirect('/sellers/orders');
+        }
+
+        // Verify this order contains at least one of seller's products
+        const sellerProducts = await productModel.find({ seller: req.seller._id }).select('_id');
+        const sellerProductIds = sellerProducts.map(p => p._id.toString());
+        const hasSellerProduct = order.products.some(p => sellerProductIds.includes(p._id.toString()));
+
+        if(!hasSellerProduct){
+            req.flash('error', 'Access denied');
+            return res.redirect('/sellers/orders');
+        }
+
+        order.status = status;
+        order.statusHistory.push({ status: status, date: new Date() });
+        await order.save();
+
+        req.flash('success', 'Order status updated to ' + status);
+        res.redirect('/sellers/orders');
+    }catch(err){
+        console.log(err);
+        res.redirect('/sellers/orders');
+    }
+});
+
+// ===== Analytics =====
+
+router.get('/analytics', isSellerLoggedIn, async function(req, res){
+    res.render('seller-analytics', {
+        seller: req.seller,
+        loggedin: true
+    });
+});
+
+router.get('/api/analytics', isSellerLoggedIn, async function(req, res){
+    try{
+        const sellerId = req.seller._id;
+
+        const sellerProducts = await productModel.find({ seller: sellerId }).select('_id');
+        const sellerProductIds = sellerProducts.map(p => p._id);
+
+        const orders = await orderModel.find({
+            products: { $in: sellerProductIds }
+        }).populate('products').populate('user');
+
+        // Monthly Revenue & Orders (last 12 months)
+        const monthlyData = {};
+        const now = new Date();
+        for(let i = 11; i >= 0; i--){
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const key = d.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
+            monthlyData[key] = { revenue: 0, orders: 0 };
+        }
+
+        orders.forEach(order => {
+            const key = order.createdAt.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
+            if(monthlyData[key]){
+                // Only count revenue from seller's products
+                let orderRevenue = 0;
+                order.products.forEach(product => {
+                    if(sellerProductIds.some(id => id.toString() === product._id.toString())){
+                        orderRevenue += product.price - (product.discount || 0);
+                    }
+                });
+                monthlyData[key].revenue += orderRevenue;
+                monthlyData[key].orders += 1;
+            }
+        });
+
+        // Category-wise Sales
+        const categoryData = {};
+        orders.forEach(order => {
+            order.products.forEach(product => {
+                if(sellerProductIds.some(id => id.toString() === product._id.toString())){
+                    const cat = product.category || 'General';
+                    if(!categoryData[cat]) categoryData[cat] = 0;
+                    categoryData[cat] += product.price - (product.discount || 0);
+                }
+            });
+        });
+
+        // Summary stats
+        let totalRevenue = 0;
+        orders.forEach(order => {
+            order.products.forEach(product => {
+                if(sellerProductIds.some(id => id.toString() === product._id.toString())){
+                    totalRevenue += product.price - (product.discount || 0);
+                }
+            });
+        });
+        const avgOrderValue = orders.length > 0 ? Math.round(totalRevenue / orders.length) : 0;
+
+        res.json({
+            monthlyLabels: Object.keys(monthlyData),
+            monthlyRevenue: Object.values(monthlyData).map(d => d.revenue),
+            monthlyOrders: Object.values(monthlyData).map(d => d.orders),
+            categoryLabels: Object.keys(categoryData),
+            categorySales: Object.values(categoryData),
+            totalRevenue,
+            avgOrderValue,
+            totalOrders: orders.length
+        });
+
+    }catch(err){
+        console.log(err);
+        res.status(500).json({ error: 'Failed to fetch analytics' });
+    }
+});
+
+// ===== Download Invoice (Seller) =====
+router.get('/orders/:id/invoice', isSellerLoggedIn, async function(req, res) {
+    try {
+        let order = await orderModel.findById(req.params.id)
+            .populate('user')
+            .populate({
+                path: 'products',
+                populate: {
+                    path: 'seller',
+                    model: 'sellers'
+                }
+            });
+
+        if (!order) {
+            req.flash('error', 'Order not found');
+            return res.redirect('/sellers/orders');
+        }
+
+        // Verify seller has at least one product in this order
+        const hasProduct = order.products.some(p => p.seller && p.seller._id.toString() === req.seller._id.toString());
+        if (!hasProduct) {
+            req.flash('error', 'Unauthorized access to invoice');
+            return res.redirect('/sellers/orders');
+        }
+
+        const { generateInvoicePDF } = require('../utils/generateInvoice');
+        
+        const invoiceNumber = `INV-${new Date(order.createdAt).getFullYear()}-${order._id.toString().slice(-6).toUpperCase()}`;
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Invoice_${invoiceNumber}.pdf`);
+
+        const reqHost = req.protocol + '://' + req.get('host');
+        
+        // Wait, for Seller, maybe we should filter the order.products so the PDF only shows their products?
+        // Let's filter it dynamically just for this render.
+        const sellerOrder = Object.assign({}, order._doc);
+        sellerOrder.products = order.products.filter(p => p.seller && p.seller._id.toString() === req.seller._id.toString());
+        // Calculate a new total amount for the seller's products only
+        sellerOrder.totalAmount = sellerOrder.products.reduce((total, p) => total + (p.price - (p.discount || 0)), 0) + 20; // adding flat 20 shipping
+
+        await generateInvoicePDF(sellerOrder, res, reqHost);
+        
+    } catch(err) {
+        console.log(err);
+        req.flash('error', 'Failed to generate invoice');
+        res.redirect('/sellers/orders');
+    }
+});
+
+module.exports = router;
+
+
+--- routes/userRouter.js ---
+const express = require('express');
+const router = express.Router();
+const{registerUser, loginUser} = require('../controllers/authController');
+
+router.get('/', (req, res) => {
+    res.send('user route is working!');
+});
+
+router.post('/register', registerUser);
+
+router.post('/login', loginUser);
+
+router.get('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/');
+});
+
+module.exports = router;
+
+--- app.js ---
+require('dotenv').config();
+const express = require('express');
+const app = express();
+const cookieParser = require('cookie-parser');
+const path = require('path');
+const db = require('./config/mongoose-connection');
+
+const indexRouter = require('./routes/index');
+const ownerRouter = require('./routes/ownerRouter');
+const sellerRouter = require('./routes/sellerRouter');
+const usersRouter = require('./routes/userRouter');
+const productsRouter = require('./routes/productsRouter');
+const paymentRouter = require("./routes/paymentRouter");
+const aiRouter = require("./routes/aiRouter");
+
+
+
+const expressSession = require('express-session');
+const flash = require('connect-flash');
+
+
+app.use(expressSession({
+    secret: process.env.EXPRESS_SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(flash());
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('view engine', 'ejs');
+
+app.use('/', indexRouter);
+app.use('/owners',ownerRouter);
+app.use('/sellers',sellerRouter);
+app.use('/users',usersRouter);
+app.use('/products',productsRouter);
+app.use('/payment', paymentRouter);
+app.use('/ai', aiRouter);
+
+// 404 catch-all
+app.use(function(req, res){
+    res.status(404).render('404', { loggedin: false });
+});
+
+app.listen(3000);
+
+--- package.json ---
+{
+  "name": "shopsphere",
+  "version": "1.0.0",
+  "description": "A full-stack e-commerce website for premium bags",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bcrypt": "^6.0.0",
+    "config": "^4.4.1",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "debug": "^4.4.3",
+    "dotenv": "^17.4.2",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-session": "^1.19.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.0",
+    "multer": "^2.2.0",
+    "pdfkit": "^0.19.1",
+    "qrcode": "^1.5.4",
+    "razorpay": "^2.9.6"
+  }
+}
