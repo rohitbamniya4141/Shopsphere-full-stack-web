@@ -32,10 +32,10 @@ module.exports.registerUser = async function(req, res){
         res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production" });
         res.redirect("/shop");
     }catch(err){
-        console.log(err.message);
-        req.flash('error', 'Something went wrong, please try again');
-        res.redirect('/');
-    }
+        console.error(err);   // err.message nahi, pura err
+        req.flash('error', err.message);
+        return res.redirect('/');
+   }
 } 
 
 module.exports.loginUser = async function(req, res){
@@ -64,8 +64,8 @@ module.exports.loginUser = async function(req, res){
             res.redirect('/');
         }
     }catch(err){
-        console.log(err.message);
-        req.flash('error', 'Something went wrong, please try again');
-        res.redirect('/');
+        console.error(err);   // err.message nahi, pura err
+        req.flash('error', err.message);
+        return res.redirect('/');
     }
 }
