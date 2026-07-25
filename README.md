@@ -10,9 +10,7 @@
 ![Razorpay](https://img.shields.io/badge/Razorpay-02042B?style=for-the-badge&logo=razorpay&logoColor=white)
 ![Gemini AI](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
 
-**A production-ready, full-stack multi-vendor e-commerce platform built with Node.js, Express.js, and MongoDB. Features three isolated role systems, HMAC-verified payments, AI-powered product recommendations, and PDF invoice generation.**
-
-[Features](#-features) · [Architecture](#-architecture) · [Tech Stack](#-tech-stack) · [Setup](#-getting-started) · [API Routes](#-api-routes) · [Screenshots](#-screenshots)
+**A full-stack multi-vendor e-commerce platform built with Node.js, Express.js, and MongoDB.**
 
 </div>
 
@@ -50,7 +48,7 @@ Currently, the platform focuses on the Bags category including backpacks, laptop
 
 - Register and await Owner approval before accessing the dashboard
 - Full product CRUD with ownership verification on every operation
-- Seller dashboard with **7 real-time metrics** powered by MongoDB Aggregation Pipelines
+- Seller dashboard with **7 real-time metrics**, including per-seller revenue isolation powered by MongoDB Aggregation Pipelines (`$unwind`, `$match`, `$group`)
 - Revenue isolated per seller from shared multi-seller orders
 
 ### 👑 Owner
@@ -144,7 +142,7 @@ users          sellers         owners
 | **users**    | `cart[]`, `wishlist[]`, `orders[]` — ObjectId arrays, populated on demand     |
 | **sellers**  | `isApproved` + `isBlocked` — double-gated on login AND every middleware call  |
 | **owners**   | Single owner enforced in code — creation blocked if any owner exists in DB    |
-| **products** | Images stored as Base64 Data URLs — no file system dependency                 |
+| **products** | Image paths stored in MongoDB while product assets are managed through application storage |
 | **orders**   | `purchasedItems[]` snapshot — price frozen at checkout time forever           |
 | **reviews**  | Unique compound index `{product, user}` — one review per customer per product |
 
@@ -334,7 +332,40 @@ npm start
 3. Sellers can list products once approved
 4. Customers can browse, add to cart, and purchase
 
+## 🌐 Deployment
+
+ShopSphere is deployed using Railway with environment-based configuration.
+
+### Deployment Setup
+
+- Backend hosted on Railway
+- MongoDB connected through MongoDB Atlas
+- Environment variables managed securely through Railway dashboard
+- Production configuration handled using `NODE_ENV`
+
+### Deployment Flow
+
+```text
+GitHub Repository
+        |
+        ▼
+Railway Build & Deploy
+        |
+        ▼
+Node.js + Express Server
+        |
+        ▼
+MongoDB Atlas Database
+        |
+        ▼
+Live Application
+
 ---
+```
+### Deployment Note
+
+The application is deployed on Railway.
+Due to free-tier resource limitations, the instance may sleep during inactivity.
 
 ## 🗺️ API Routes
 
@@ -445,8 +476,6 @@ npm start
 
 ![Invoice](./screenshots/invoice.png)
 
-_Screenshots available in the `/screenshots` folder._
-
 ---
 
 ## 🧪 Key Test Scenarios
@@ -470,7 +499,7 @@ _Screenshots available in the `/screenshots` folder._
 - **Role isolation without a shared auth system** — three completely separate collections, cookies, and middleware guards
 - **Database-first AI prompting** — preventing LLM hallucination by injecting real inventory into the prompt context
 - **Immutable order records** — `purchasedItems[]` snapshot pattern to decouple invoice accuracy from live data
-- **Memory-based file uploads** — Multer `memoryStorage` → Base64 pipeline with zero disk dependency
+- **Product image handling** — Multer-based upload flow with image references stored in MongoDB
 
 ---
 
@@ -482,10 +511,10 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👨‍💻 Author
 
-**Rohit**
+**Rohit Bamniya**
 
-- GitHub: [@your-username](https://github.com/rohitbamniya4141)
-- LinkedIn: [your-linkedin](https://www.linkedin.com/in/rohit-bamniya-mcanitt)
+- GitHub: https://github.com/rohitbamniya4141
+- LinkedIn: https://www.linkedin.com/in/rohit-bamniya-mcanitt
 - Email: rohitbamniya.nitt@gmail.com
 
 ---
