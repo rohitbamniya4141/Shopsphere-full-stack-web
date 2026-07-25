@@ -482,7 +482,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👨‍💻 Author
 
-**Rohit**
+**Rohit Bamniya**
 
 - GitHub: [@your-username](https://github.com/rohitbamniya4141)
 - LinkedIn: [your-linkedin](https://www.linkedin.com/in/rohit-bamniya-mcanitt)
