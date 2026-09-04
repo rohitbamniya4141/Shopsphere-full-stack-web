@@ -292,95 +292,9 @@ router.get('/analytics', isOwnerLoggedIn, async function(req, res){
 // Analytics API — returns JSON data for Chart.js
 router.get('/api/analytics', isOwnerLoggedIn, async function(req, res){
     try{
-        const orders = await orderModel.find().populate('products').populate('purchasedItems.product').populate('user');
-
-        // Monthly Revenue & Orders (last 12 months)
-        const monthlyData = {};
-        const now = new Date();
-        for(let i = 11; i >= 0; i--){
-            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const key = d.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
-            monthlyData[key] = { revenue: 0, orders: 0 };
-        }
-        orders.forEach(order => {
-            const key = order.createdAt.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
-            if(monthlyData[key]){
-                monthlyData[key].revenue += order.totalAmount;
-                monthlyData[key].orders += 1;
-            }
-        });
-
-        // Daily Sales (last 30 days)
-        const dailyData = {};
-        for(let i = 29; i >= 0; i--){
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const key = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-            dailyData[key] = 0;
-        }
-        orders.forEach(order => {
-            const key = order.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-            if(dailyData[key] !== undefined){
-                dailyData[key] += order.totalAmount;
-            }
-        });
-
-        // Category-wise Sales
-        const categoryData = {};
-        orders.forEach(order => {
-            const isNewFormat = order.purchasedItems && order.purchasedItems.length > 0;
-            const itemsSource = isNewFormat ? order.purchasedItems : order.products;
-            
-            itemsSource.forEach(item => {
-                const product = isNewFormat ? item.product : item;
-                if(!product) return;
-                const cat = product.category || 'General';
-                if(!categoryData[cat]) categoryData[cat] = 0;
-                const price = isNewFormat ? item.price : product.price;
-                const discount = isNewFormat ? item.discount : product.discount;
-                categoryData[cat] += price - (discount || 0);
-            });
-        });
-
-        // Top 5 Customers
-        const customerData = {};
-        orders.forEach(order => {
-            if(order.user){
-                const key = order.user._id.toString();
-                if(!customerData[key]){
-                    customerData[key] = {
-                        name: order.user.fullname,
-                        email: order.user.email,
-                        totalSpent: 0,
-                        totalOrders: 0
-                    };
-                }
-                customerData[key].totalSpent += order.totalAmount;
-                customerData[key].totalOrders += 1;
-            }
-        });
-        const topCustomers = Object.values(customerData)
-            .sort((a, b) => b.totalSpent - a.totalSpent)
-            .slice(0, 5);
-
-        // Summary stats
-        const totalRevenue = orders.reduce((s, o) => s + o.totalAmount, 0);
-        const avgOrderValue = orders.length > 0 ? Math.round(totalRevenue / orders.length) : 0;
-
-        res.json({
-            monthlyLabels: Object.keys(monthlyData),
-            monthlyRevenue: Object.values(monthlyData).map(d => d.revenue),
-            monthlyOrders: Object.values(monthlyData).map(d => d.orders),
-            dailyLabels: Object.keys(dailyData),
-            dailySales: Object.values(dailyData),
-            categoryLabels: Object.keys(categoryData),
-            categorySales: Object.values(categoryData),
-            topCustomers,
-            totalRevenue,
-            avgOrderValue,
-            totalOrders: orders.length
-        });
-
+        const { getOwnerAnalytics } = require('../utils/analyticsService');
+        const data = await getOwnerAnalytics();
+        res.json(data);
     }catch(err){
         console.log(err);
         res.status(500).json({ error: 'Failed to fetch analytics' });

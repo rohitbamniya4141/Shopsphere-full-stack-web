@@ -50,9 +50,14 @@ const orderSchema = mongoose.Schema({
     paymentId: {
         type: String,
         default: ''
+    },
+
+    // Development-only benchmark tag — never true in real/production data
+    _isBenchmark: {
+        type: Boolean,
+        default: false,
+        select: false   // excluded from normal queries unless explicitly asked
     }
-},{
-    timestamps: true
-});
+},{ timestamps: true });
 
 module.exports = mongoose.model('orders', orderSchema);

@@ -31,7 +31,14 @@ const userSchema = mongoose.Schema({
       default: 'user'
     },
     phone: Number,
-    picture: String
+    picture: String,
+
+    // Development-only benchmark tag — never true in real data
+    _isBenchmark: {
+        type: Boolean,
+        default: false,
+        select: false
+    }
   });
 
   module.exports = mongoose.model('users', userSchema);

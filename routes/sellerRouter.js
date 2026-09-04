@@ -382,93 +382,9 @@ router.get('/analytics', isSellerLoggedIn, async function(req, res){
 
 router.get('/api/analytics', isSellerLoggedIn, async function(req, res){
     try{
-        const sellerId = req.seller._id;
-
-        const sellerProducts = await productModel.find({ seller: sellerId }).select('_id');
-        const sellerProductIds = sellerProducts.map(p => p._id);
-
-        const orders = await orderModel.find({
-            products: { $in: sellerProductIds }
-        }).populate('products').populate('purchasedItems.product').populate('user');
-
-        // Monthly Revenue & Orders (last 12 months)
-        const monthlyData = {};
-        const now = new Date();
-        for(let i = 11; i >= 0; i--){
-            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const key = d.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
-            monthlyData[key] = { revenue: 0, orders: 0 };
-        }
-
-        orders.forEach(order => {
-            const key = order.createdAt.toLocaleString('en-IN', { month: 'short', year: '2-digit' });
-            if(monthlyData[key]){
-                const isNewFormat = order.purchasedItems && order.purchasedItems.length > 0;
-                const itemsSource = isNewFormat ? order.purchasedItems : order.products;
-                let orderRevenue = 0;
-                itemsSource.forEach(item => {
-                    const product = isNewFormat ? item.product : item;
-                    if(!product) return;
-                    const pid = product._id ? product._id.toString() : product.toString();
-                    if(sellerProductIds.some(id => id.toString() === pid)){
-                        const price = isNewFormat ? item.price : product.price;
-                        const discount = isNewFormat ? item.discount : product.discount;
-                        orderRevenue += price - (discount || 0);
-                    }
-                });
-                monthlyData[key].revenue += orderRevenue;
-                monthlyData[key].orders += 1;
-            }
-        });
-
-        // Category-wise Sales
-        const categoryData = {};
-        orders.forEach(order => {
-            const isNewFormat = order.purchasedItems && order.purchasedItems.length > 0;
-            const itemsSource = isNewFormat ? order.purchasedItems : order.products;
-            itemsSource.forEach(item => {
-                const product = isNewFormat ? item.product : item;
-                if(!product) return;
-                const pid = product._id ? product._id.toString() : product.toString();
-                if(sellerProductIds.some(id => id.toString() === pid)){
-                    const cat = product.category || 'General';
-                    if(!categoryData[cat]) categoryData[cat] = 0;
-                    const price = isNewFormat ? item.price : product.price;
-                    const discount = isNewFormat ? item.discount : product.discount;
-                    categoryData[cat] += price - (discount || 0);
-                }
-            });
-        });
-
-        // Summary stats
-        let totalRevenue = 0;
-        orders.forEach(order => {
-            const isNewFormat = order.purchasedItems && order.purchasedItems.length > 0;
-            const itemsSource = isNewFormat ? order.purchasedItems : order.products;
-            itemsSource.forEach(item => {
-                const product = isNewFormat ? item.product : item;
-                if(!product) return;
-                const pid = product._id ? product._id.toString() : product.toString();
-                if(sellerProductIds.some(id => id.toString() === pid)){
-                    const price = isNewFormat ? item.price : product.price;
-                    const discount = isNewFormat ? item.discount : product.discount;
-                    totalRevenue += price - (discount || 0);
-                }
-            });
-        });
-        const avgOrderValue = orders.length > 0 ? Math.round(totalRevenue / orders.length) : 0;
-
-        res.json({
-            monthlyLabels: Object.keys(monthlyData),
-            monthlyRevenue: Object.values(monthlyData).map(d => d.revenue),
-            monthlyOrders: Object.values(monthlyData).map(d => d.orders),
-            categoryLabels: Object.keys(categoryData),
-            categorySales: Object.values(categoryData),
-            totalRevenue,
-            avgOrderValue,
-            totalOrders: orders.length
-        });
-
+        const { getSellerAnalytics } = require('../utils/analyticsService');
+        const data = await getSellerAnalytics(req.seller._id);
+        res.json(data);
     }catch(err){
         console.log(err);
         res.status(500).json({ error: 'Failed to fetch analytics' });

@@ -22,6 +22,13 @@ const sellerSchema = mongoose.Schema({
     isBlocked: {
         type: Boolean,
         default: false
+    },
+
+    // Development-only benchmark tag — never true in real data
+    _isBenchmark: {
+        type: Boolean,
+        default: false,
+        select: false
     }
 },{
     timestamps: true

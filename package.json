@@ -5,7 +5,16 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "build": "npm install --prefix client && npm run build --prefix client",
+    "client:dev": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
+    "db:inspect": "node scripts/db-inspect.js",
+    "seed:benchmark": "node scripts/benchmark-seed.js",
+    "clear:benchmark": "node scripts/benchmark-clear.js",
+    "benchmark": "node scripts/benchmark-run.js",
+    "add:indexes": "node scripts/add-indexes.js",
+    "data-quality": "node scripts/data-quality.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

@@ -8,62 +8,84 @@
     <div class="mb-10">
         <div class="flex items-center gap-3 mb-3">
             <div class="w-1.5 h-8 rounded-full bg-gradient-to-b from-brand-500 to-brand-700"></div>
-            <h1 class="text-3xl sm:text-4xl font-bold text-dark-900 tracking-tight">Analytics Dashboard</h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-dark-900 tracking-tight">Platform Analytics</h1>
         </div>
         <p class="text-dark-400 text-sm ml-5 sm:ml-6">
-            Revenue trends, order insights, and customer performance at a glance.
+            Platform revenue trends, seller performance, and order distribution insights.
         </p>
     </div>
 
-    <!-- Loading Spinner (shown while fetching) -->
+    <!-- Loading Spinner -->
     <div id="analytics-loader" class="flex flex-col items-center justify-center py-24">
         <div class="w-12 h-12 rounded-full border-[3px] border-brand-100 border-t-brand-500 animate-spin mb-5"></div>
-        <p class="text-dark-400 text-sm font-medium">Loading analytics data&hellip;</p>
+        <p class="text-dark-400 text-sm font-medium">Loading platform analytics&hellip;</p>
     </div>
 
     <!-- Main Content (hidden until data loads) -->
     <div id="analytics-content" class="hidden">
 
-        <!-- Summary Stat Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+        <!-- Summary Stat Cards (5 KPIs) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
 
             <!-- Total Revenue -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-all duration-300">
-                <div class="flex items-center gap-3.5 mb-4">
-                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center flex-shrink-0">
-                        <i class="ri-money-rupee-circle-line text-brand-600 text-xl"></i>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-money-rupee-circle-line text-brand-600 text-lg"></i>
                     </div>
-                    <span class="text-xs uppercase tracking-widest font-semibold text-dark-300">Total Revenue</span>
+                    <span class="text-[11px] uppercase tracking-wider font-semibold text-dark-400">Total Revenue</span>
                 </div>
-                <p id="stat-revenue" class="text-2xl sm:text-3xl font-bold text-dark-900 tracking-tight">—</p>
+                <p id="stat-revenue" class="text-2xl font-bold text-dark-900 tracking-tight">—</p>
             </div>
 
             <!-- Total Orders -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-all duration-300">
-                <div class="flex items-center gap-3.5 mb-4">
-                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0">
-                        <i class="ri-shopping-bag-line text-blue-600 text-xl"></i>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-shopping-bag-line text-blue-600 text-lg"></i>
                     </div>
-                    <span class="text-xs uppercase tracking-widest font-semibold text-dark-300">Total Orders</span>
+                    <span class="text-[11px] uppercase tracking-wider font-semibold text-dark-400">Total Orders</span>
                 </div>
-                <p id="stat-orders" class="text-2xl sm:text-3xl font-bold text-dark-900 tracking-tight">—</p>
+                <p id="stat-orders" class="text-2xl font-bold text-dark-900 tracking-tight">—</p>
             </div>
 
             <!-- Avg Order Value -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-all duration-300">
-                <div class="flex items-center gap-3.5 mb-4">
-                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center flex-shrink-0">
-                        <i class="ri-line-chart-line text-emerald-600 text-xl"></i>
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-line-chart-line text-emerald-600 text-lg"></i>
                     </div>
-                    <span class="text-xs uppercase tracking-widest font-semibold text-dark-300">Avg Order Value</span>
+                    <span class="text-[11px] uppercase tracking-wider font-semibold text-dark-400">Avg Order Value</span>
                 </div>
-                <p id="stat-aov" class="text-2xl sm:text-3xl font-bold text-dark-900 tracking-tight">—</p>
+                <p id="stat-aov" class="text-2xl font-bold text-dark-900 tracking-tight">—</p>
+            </div>
+
+            <!-- Total Customers -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-user-line text-purple-600 text-lg"></i>
+                    </div>
+                    <span class="text-[11px] uppercase tracking-wider font-semibold text-dark-400">Customers</span>
+                </div>
+                <p id="stat-customers" class="text-2xl font-bold text-dark-900 tracking-tight">—</p>
+            </div>
+
+            <!-- Active Sellers -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-store-2-line text-amber-600 text-lg"></i>
+                    </div>
+                    <span class="text-[11px] uppercase tracking-wider font-semibold text-dark-400">Sellers</span>
+                </div>
+                <p id="stat-sellers" class="text-2xl font-bold text-dark-900 tracking-tight">—</p>
             </div>
 
         </div>
 
-        <!-- Charts Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        <!-- Charts Grid 1: Revenue + Orders Trends -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
             <!-- Revenue Bar Chart -->
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
@@ -97,8 +119,13 @@
                 </div>
             </div>
 
-            <!-- Daily Sales Area Chart -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        </div>
+
+        <!-- Charts Grid 2: Daily Sales + Distribution -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+
+            <!-- Daily Sales Area Chart (Span 2 cols on LG) -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 lg:col-span-2">
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h3 class="text-sm font-semibold text-dark-900">Daily Sales Trend</h3>
@@ -117,8 +144,8 @@
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h3 class="text-sm font-semibold text-dark-900">Category-wise Sales</h3>
-                        <p class="text-xs text-dark-400 mt-0.5">Revenue by category</p>
+                        <h3 class="text-sm font-semibold text-dark-900">Category Sales</h3>
+                        <p class="text-xs text-dark-400 mt-0.5">Revenue breakdown</p>
                     </div>
                     <div class="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
                         <i class="ri-pie-chart-fill text-purple-500 text-lg"></i>
@@ -131,13 +158,73 @@
 
         </div>
 
-        <!-- Top Customers Table -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <!-- Tables Row: Top Sellers & Top Products & Top Customers -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
 
+            <!-- Top Sellers Table -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-6">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h3 class="text-sm font-semibold text-dark-900 uppercase tracking-wider">Top Sellers by Revenue</h3>
+                        <p class="text-xs text-dark-400 mt-0.5">Platform vendor performance</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
+                        <i class="ri-store-3-line text-amber-500 text-lg"></i>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-100 text-left text-xs uppercase text-dark-400 font-semibold">
+                                <th class="pb-3 pr-4">#</th>
+                                <th class="pb-3 pr-4">Shop</th>
+                                <th class="pb-3 pr-4 text-center">Orders</th>
+                                <th class="pb-3 text-right">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sellers-table-body">
+                            <tr><td colspan="4" class="text-center text-dark-300 py-6">Loading sellers...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Products Table -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-6">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h3 class="text-sm font-semibold text-dark-900 uppercase tracking-wider">Top Products</h3>
+                        <p class="text-xs text-dark-400 mt-0.5">Highest grossing items</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <i class="ri-box-3-line text-blue-500 text-lg"></i>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-100 text-left text-xs uppercase text-dark-400 font-semibold">
+                                <th class="pb-3 pr-4">#</th>
+                                <th class="pb-3 pr-4">Product</th>
+                                <th class="pb-3 pr-4 text-center">Units</th>
+                                <th class="pb-3 text-right">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body">
+                            <tr><td colspan="4" class="text-center text-dark-300 py-6">Loading products...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Top Customers Table -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-10">
             <div class="px-6 pt-6 pb-4 border-b border-gray-100/80">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-sm font-semibold text-dark-900">Top Customers</h3>
+                        <h3 class="text-sm font-semibold text-dark-900">Top Customers (Verified)</h3>
                         <p class="text-xs text-dark-400 mt-0.5">Ranked by total spending</p>
                     </div>
                     <div class="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center">
@@ -146,8 +233,7 @@
                 </div>
             </div>
 
-            <!-- Desktop Table -->
-            <div class="hidden sm:block overflow-x-auto">
+            <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="border-b border-gray-100">
@@ -163,17 +249,11 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Mobile Cards -->
-            <div id="customers-mobile" class="sm:hidden divide-y divide-gray-100">
-                <!-- Populated by JS -->
-            </div>
-
         </div>
 
     </div>
 
-    <!-- Error State (hidden by default) -->
+    <!-- Error State -->
     <div id="analytics-error" class="hidden flex flex-col items-center justify-center py-24">
         <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center mb-8">
             <i class="ri-error-warning-line text-4xl text-red-400"></i>
@@ -192,17 +272,14 @@
 </div>
 
 <script>
-    // Format currency
     function formatCurrency(val) {
-        return '₹' + Number(val).toLocaleString('en-IN');
+        return '₹' + Number(val || 0).toLocaleString('en-IN');
     }
 
-    // Get initial from name
     function getInitial(name) {
         return name ? name.charAt(0).toUpperCase() : '?';
     }
 
-    // Chart defaults
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.font.size = 12;
     Chart.defaults.color = '#787e8b';
@@ -223,18 +300,22 @@
             if (!res.ok) throw new Error('API Error');
             const data = await res.json();
 
-            // Populate stats
-            document.getElementById('stat-revenue').textContent = formatCurrency(data.totalRevenue);
-            document.getElementById('stat-orders').textContent = data.totalOrders.toLocaleString('en-IN');
-            document.getElementById('stat-aov').textContent = formatCurrency(data.avgOrderValue);
+            // Populate KPIs
+            document.getElementById('stat-revenue').textContent   = formatCurrency(data.totalRevenue);
+            document.getElementById('stat-orders').textContent    = (data.totalOrders || 0).toLocaleString('en-IN');
+            document.getElementById('stat-aov').textContent       = formatCurrency(data.avgOrderValue);
+            document.getElementById('stat-customers').textContent = (data.totalCustomers || 0).toLocaleString('en-IN');
+            document.getElementById('stat-sellers').textContent   = (data.totalSellers || 0).toLocaleString('en-IN');
 
             // Build charts
-            createRevenueChart(data.monthlyLabels, data.monthlyRevenue);
-            createOrdersChart(data.monthlyLabels, data.monthlyOrders);
-            createDailySalesChart(data.dailyLabels, data.dailySales);
-            createCategoryChart(data.categoryLabels, data.categorySales);
+            createRevenueChart(data.monthlyLabels || [], data.monthlyRevenue || []);
+            createOrdersChart(data.monthlyLabels || [], data.monthlyOrders || []);
+            createDailySalesChart(data.dailyLabels || [], data.dailySales || []);
+            createCategoryChart(data.categoryLabels || [], data.categorySales || []);
 
-            // Build customers table
+            // Build tables
+            buildSellersTable(data.topSellers || []);
+            buildProductsTable(data.topProducts || []);
             buildCustomersTable(data.topCustomers || []);
 
             loader.classList.add('hidden');
@@ -277,16 +358,11 @@
                         titleFont: { weight: '600' },
                         padding: 12,
                         cornerRadius: 10,
-                        callbacks: {
-                            label: ctx => ' ' + formatCurrency(ctx.parsed.y)
-                        }
+                        callbacks: { label: ctx => ' ' + formatCurrency(ctx.parsed.y) }
                     }
                 },
                 scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { size: 11 } }
-                    },
+                    x: { grid: { display: false }, ticks: { font: { size: 11 } } },
                     y: {
                         grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
                         border: { display: false },
@@ -333,26 +409,14 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#1a1b20',
-                        titleFont: { weight: '600' },
-                        padding: 12,
-                        cornerRadius: 10,
-                    }
+                    tooltip: { backgroundColor: '#1a1b20', titleFont: { weight: '600' }, padding: 12, cornerRadius: 10 }
                 },
                 scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { size: 11 } }
-                    },
+                    x: { grid: { display: false }, ticks: { font: { size: 11 } } },
                     y: {
                         grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
                         border: { display: false },
-                        ticks: {
-                            font: { size: 11 },
-                            stepSize: 1,
-                            precision: 0,
-                        }
+                        ticks: { font: { size: 11 }, stepSize: 1, precision: 0 }
                     }
                 }
             }
@@ -398,19 +462,11 @@
                         titleFont: { weight: '600' },
                         padding: 12,
                         cornerRadius: 10,
-                        callbacks: {
-                            label: ctx => ' ' + formatCurrency(ctx.parsed.y)
-                        }
+                        callbacks: { label: ctx => ' ' + formatCurrency(ctx.parsed.y) }
                     }
                 },
                 scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: {
-                            font: { size: 11 },
-                            maxTicksLimit: 10,
-                        }
-                    },
+                    x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 10 } },
                     y: {
                         grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
                         border: { display: false },
@@ -447,35 +503,62 @@
                 cutout: '65%',
                 plugins: {
                     legend: {
-                        position: 'right',
-                        labels: {
-                            boxWidth: 12,
-                            boxHeight: 12,
-                            borderRadius: 3,
-                            useBorderRadius: true,
-                            padding: 16,
-                            font: { size: 12, weight: '500' },
-                            color: '#3d4049',
-                        }
+                        position: 'bottom',
+                        labels: { boxWidth: 10, boxHeight: 10, padding: 12, font: { size: 11 } }
                     },
                     tooltip: {
                         backgroundColor: '#1a1b20',
                         titleFont: { weight: '600' },
                         padding: 12,
                         cornerRadius: 10,
-                        callbacks: {
-                            label: ctx => ' ' + ctx.label + ': ' + formatCurrency(ctx.parsed)
-                        }
+                        callbacks: { label: ctx => ' ' + ctx.label + ': ' + formatCurrency(ctx.parsed) }
                     }
                 }
             }
         });
     }
 
+    /* ───── Top Sellers Table ───── */
+    function buildSellersTable(sellers) {
+        const tbody = document.getElementById('sellers-table-body');
+        if (!sellers || sellers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-dark-300 py-6">No seller sales yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = sellers.map((s, i) => `
+            <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                <td class="py-3 pr-4 text-dark-300 font-medium">${i + 1}</td>
+                <td class="py-3 pr-4 font-semibold text-dark-800">${s.shopName || '—'}</td>
+                <td class="py-3 pr-4 text-center text-dark-600">${(s.orderCount || 0).toLocaleString('en-IN')}</td>
+                <td class="py-3 text-right font-bold text-emerald-600">${formatCurrency(s.totalRevenue)}</td>
+            </tr>
+        `).join('');
+    }
+
+    /* ───── Top Products Table ───── */
+    function buildProductsTable(products) {
+        const tbody = document.getElementById('products-table-body');
+        if (!products || products.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-dark-300 py-6">No products sold yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = products.map((p, i) => `
+            <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                <td class="py-3 pr-4 text-dark-300 font-medium">${i + 1}</td>
+                <td class="py-3 pr-4 font-semibold text-dark-800 truncate max-w-[150px]">${p.name || '—'}</td>
+                <td class="py-3 pr-4 text-center text-dark-600">${(p.totalSold || 0).toLocaleString('en-IN')}</td>
+                <td class="py-3 text-right font-bold text-emerald-600">${formatCurrency(p.totalRevenue)}</td>
+            </tr>
+        `).join('');
+    }
+
     /* ───── Top Customers Table ───── */
     function buildCustomersTable(customers) {
-        // Desktop
         const tbody = document.getElementById('customers-table-body');
+        if (!customers || customers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-dark-300 py-6">No verified customers found.</td></tr>';
+            return;
+        }
         tbody.innerHTML = customers.map((c, i) => `
             <tr class="border-b border-gray-50 hover:bg-gray-50/60 transition-colors">
                 <td class="px-6 py-4">
@@ -498,30 +581,8 @@
                 <td class="px-6 py-4 text-right text-sm font-bold text-dark-900">${formatCurrency(c.totalSpent)}</td>
             </tr>
         `).join('');
-
-        // Mobile
-        const mobileEl = document.getElementById('customers-mobile');
-        mobileEl.innerHTML = customers.map((c, i) => `
-            <div class="px-5 py-4 flex items-center gap-3.5">
-                <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg ${i < 3 ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-dark-400'} text-xs font-bold flex-shrink-0">
-                    ${i + 1}
-                </span>
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center flex-shrink-0">
-                    <span class="text-white text-xs font-bold">${getInitial(c.name)}</span>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold text-dark-900 truncate">${c.name}</p>
-                    <p class="text-xs text-dark-400 truncate">${c.email}</p>
-                </div>
-                <div class="text-right flex-shrink-0">
-                    <p class="text-sm font-bold text-dark-900">${formatCurrency(c.totalSpent)}</p>
-                    <p class="text-xs text-dark-400">${c.totalOrders} orders</p>
-                </div>
-            </div>
-        `).join('');
     }
 
-    // Load on DOM ready
     document.addEventListener('DOMContentLoaded', loadAnalytics);
 </script>
 

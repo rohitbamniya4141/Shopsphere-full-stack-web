@@ -13,8 +13,8 @@
         </p>
     </div>
 
-    <!-- Summary Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+    <!-- Summary Stats — Row 1: Revenue, Orders, AOV -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
 
         <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg p-6 transition-all duration-300 hover:-translate-y-0.5">
             <div class="flex items-center justify-between mb-3">
@@ -46,10 +46,45 @@
             <h2 id="stat-avg" class="text-3xl font-extrabold text-dark-900 tracking-tight">₹0</h2>
         </div>
 
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Units Sold</p>
+                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="ri-box-3-line text-amber-500 text-lg"></i>
+                </div>
+            </div>
+            <h2 id="stat-units" class="text-3xl font-extrabold text-dark-900 tracking-tight">0</h2>
+        </div>
+
     </div>
 
-    <!-- Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+    <!-- Summary Stats — Row 2: Pending, Delivered -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
+
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Pending Orders</p>
+                <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="ri-time-line text-orange-400 text-lg"></i>
+                </div>
+            </div>
+            <h2 id="stat-pending" class="text-3xl font-extrabold text-orange-500 tracking-tight">0</h2>
+        </div>
+
+        <div class="group bg-white rounded-2xl border border-gray-100/80 shadow-sm hover:shadow-lg p-6 transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-dark-400 text-xs font-semibold uppercase tracking-wider">Delivered Orders</p>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="ri-checkbox-circle-line text-emerald-500 text-lg"></i>
+                </div>
+            </div>
+            <h2 id="stat-delivered" class="text-3xl font-extrabold text-emerald-600 tracking-tight">0</h2>
+        </div>
+
+    </div>
+
+    <!-- Charts Row 1: Monthly Revenue + Monthly Orders -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
         <!-- Monthly Revenue -->
         <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-6">
@@ -69,11 +104,45 @@
 
     </div>
 
-    <!-- Category Distribution -->
-    <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-6 max-w-md mx-auto">
-        <h3 class="text-sm font-bold text-dark-900 mb-4 uppercase tracking-wider text-center">Category Distribution</h3>
-        <div class="relative h-[280px]">
-            <canvas id="categoryChart"></canvas>
+    <!-- Charts Row 2: Category Distribution + Order Status -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+        <!-- Category Distribution -->
+        <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-6">
+            <h3 class="text-sm font-bold text-dark-900 mb-4 uppercase tracking-wider text-center">Revenue by Category</h3>
+            <div class="relative h-[280px]">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Order Status Distribution -->
+        <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-6">
+            <h3 class="text-sm font-bold text-dark-900 mb-4 uppercase tracking-wider text-center">Order Status Distribution</h3>
+            <div class="relative h-[280px]">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Top Products Table -->
+    <div class="bg-white rounded-2xl border border-gray-100/80 shadow-sm p-6 mb-10">
+        <h3 class="text-sm font-bold text-dark-900 mb-5 uppercase tracking-wider">Top Products by Revenue</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left text-dark-400 font-semibold pb-3 pr-4">#</th>
+                        <th class="text-left text-dark-400 font-semibold pb-3 pr-4">Product</th>
+                        <th class="text-left text-dark-400 font-semibold pb-3 pr-4">Category</th>
+                        <th class="text-right text-dark-400 font-semibold pb-3 pr-4">Units Sold</th>
+                        <th class="text-right text-dark-400 font-semibold pb-3">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody id="top-products-body">
+                    <tr><td colspan="5" class="text-center text-dark-300 py-6">Loading...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -82,20 +151,33 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    const brandColor = '#d4882e';
+    const brandLight = 'rgba(212, 136, 46, 0.15)';
+    const CHART_COLORS = ['#d4882e','#10b981','#6366f1','#f43f5e','#06b6d4','#e0a050','#8b5cf6','#14b8a6'];
+    const STATUS_COLORS = {
+        'Delivered':          '#10b981',
+        'Shipped':            '#3b82f6',
+        'Payment Confirmed':  '#6366f1',
+        'Pending':            '#f59e0b',
+        'Packed':             '#06b6d4',
+        'Out For Delivery':   '#8b5cf6',
+        'Cancelled':          '#f43f5e',
+    };
+
     async function loadAnalytics() {
         try {
-            const res = await fetch('/sellers/api/analytics');
+            const res  = await fetch('/sellers/api/analytics');
             const data = await res.json();
 
-            // Summary stats
-            document.getElementById('stat-revenue').textContent = '₹' + (data.totalRevenue || 0).toLocaleString('en-IN');
-            document.getElementById('stat-orders').textContent = data.totalOrders || 0;
-            document.getElementById('stat-avg').textContent = '₹' + (data.avgOrderValue || 0).toLocaleString('en-IN');
+            // ── Summary KPIs ──────────────────────────────────────────────────
+            document.getElementById('stat-revenue').textContent   = '₹' + (data.totalRevenue   || 0).toLocaleString('en-IN');
+            document.getElementById('stat-orders').textContent    = (data.totalOrders    || 0).toLocaleString('en-IN');
+            document.getElementById('stat-avg').textContent       = '₹' + (data.avgOrderValue   || 0).toLocaleString('en-IN');
+            document.getElementById('stat-units').textContent     = (data.totalUnitsSold || 0).toLocaleString('en-IN');
+            document.getElementById('stat-pending').textContent   = (data.pendingOrders  || 0).toLocaleString('en-IN');
+            document.getElementById('stat-delivered').textContent = (data.deliveredOrders|| 0).toLocaleString('en-IN');
 
-            const brandColor = '#d4882e';
-            const brandLight = 'rgba(212, 136, 46, 0.15)';
-
-            // Revenue Chart
+            // ── Monthly Revenue Chart ─────────────────────────────────────────
             new Chart(document.getElementById('revenueChart'), {
                 type: 'line',
                 data: {
@@ -124,7 +206,7 @@
                 }
             });
 
-            // Orders Chart
+            // ── Monthly Orders Chart ──────────────────────────────────────────
             new Chart(document.getElementById('ordersChart'), {
                 type: 'bar',
                 data: {
@@ -148,15 +230,14 @@
                 }
             });
 
-            // Category Chart
-            const catColors = ['#d4882e', '#e0a050', '#10b981', '#6366f1', '#f43f5e', '#06b6d4'];
+            // ── Category Doughnut Chart ───────────────────────────────────────
             new Chart(document.getElementById('categoryChart'), {
                 type: 'doughnut',
                 data: {
                     labels: data.categoryLabels,
                     datasets: [{
                         data: data.categorySales,
-                        backgroundColor: catColors.slice(0, data.categoryLabels.length),
+                        backgroundColor: CHART_COLORS.slice(0, (data.categoryLabels || []).length),
                         borderWidth: 0,
                         hoverOffset: 8
                     }]
@@ -169,6 +250,53 @@
                     }
                 }
             });
+
+            // ── Order Status Doughnut Chart (NEW) ─────────────────────────────
+            if (data.statusLabels && data.statusLabels.length > 0) {
+                const statusColors = (data.statusLabels || []).map(s => STATUS_COLORS[s] || '#94a3b8');
+                new Chart(document.getElementById('statusChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.statusLabels,
+                        datasets: [{
+                            data: data.statusCounts,
+                            backgroundColor: statusColors,
+                            borderWidth: 0,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 11 } } }
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('statusChart').parentElement.innerHTML =
+                    '<p class="text-dark-300 text-sm text-center pt-10">No order data yet.</p>';
+            }
+
+            // ── Top Products Table (NEW) ───────────────────────────────────────
+            const tbody = document.getElementById('top-products-body');
+            if (data.topProducts && data.topProducts.length > 0) {
+                tbody.innerHTML = data.topProducts.map((p, i) => `
+                    <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                        <td class="py-3 pr-4 text-dark-300 font-medium">${i + 1}</td>
+                        <td class="py-3 pr-4 font-semibold text-dark-800">${p.name || '—'}</td>
+                        <td class="py-3 pr-4">
+                            <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-600">
+                                ${p.category || 'General'}
+                            </span>
+                        </td>
+                        <td class="py-3 pr-4 text-right text-dark-600">${(p.totalSold || 0).toLocaleString('en-IN')}</td>
+                        <td class="py-3 text-right font-bold text-emerald-600">₹${(p.totalRevenue || 0).toLocaleString('en-IN')}</td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-dark-300 py-6">No sales data yet.</td></tr>';
+            }
 
         } catch (err) {
             console.error('Failed to load analytics:', err);
