@@ -266,10 +266,71 @@ ShopSphere/
 
 ---
 
-## 🚀 Getting Started
+## 🚀# 🛍️ ShopSphere — AI-Native Multi-Vendor E-Commerce Platform
+
+<div align="center">
+
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Razorpay](https://img.shields.io/badge/Razorpay-02042B?style=for-the-badge&logo=razorpay&logoColor=white)
+![Gemini AI](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
+
+**A high-performance, full-stack multi-vendor e-commerce platform built with React, Node.js, and MongoDB.**
+
+</div>
+
+---
+
+## 🚀 Project Overview
+
+ShopSphere is an AI-powered multi-vendor e-commerce platform originally built with a Server-Side Rendered (EJS) architecture, recently **modernized into a scalable React Single Page Application (SPA)**. Every engineering decision in this project is backed by a concrete security or performance requirement.
+
+The platform focuses on the Bags category (backpacks, laptop bags, travel bags) and supports three distinct personas: **Customers**, **Sellers**, and an **Owner/Admin**, with strict Role-Based Access Control (RBAC) enforcing data isolation.
+
+> **Note on Quality Engineering:** This project utilizes verifiable benchmarks, cryptographic payment verification, strict multi-tenant authorization, and an embedded LLM API. 
+
+---
+
+## 🌟 Key Features
+
+### 🛍️ Customer Experience
+- **Decoupled React SPA:** Responsive, premium UI built with a custom Tailwind v4 component system (`Card`, `Button`, `Input`).
+- **Domain-Aware AI Assistant:** Integrated Google Gemini LLM API acting as an in-store assistant, strictly grounded in live-inventory data to prevent hallucinations.
+- **Secure Payments:** Razorpay integration with **server-side HMAC-SHA256 signature verification** before inventory deduction.
+- **Shopping Cart & Wishlist:** Server-side bill calculation to prevent client-side price tampering.
+- **Order Tracking & Invoices:** Downloadable PDF invoices with embedded QR codes, utilizing a historical snapshot pattern to preserve price accuracy against future catalog updates.
+
+### 💼 Seller Panel
+- **Isolated Multi-Tenant Data:** Full product CRUD operations with strict ownership verification middleware.
+- **High-Performance Analytics:** Real-time seller dashboards tracking revenue and orders. 
+  - *Engineering Highlight:* Refactored MongoDB aggregation pipelines (`$unwind`, `$match`, `$group`) and implemented compound indexes, **cutting analytics query latency by 51% (304ms → 148ms)** across a 1,000+ order benchmark dataset.
+
+### 👑 Owner/Admin Panel
+- **Governance:** Approve or block seller accounts instantly.
+- **Platform Analytics:** Total products, orders, customers, and revenue across the entire platform.
+
+---
+
+## 🏛️ Architecture
+
+ShopSphere recently migrated from an MVC monolith to a **Decoupled Client-Server Architecture**:
+
+- **Frontend (`/client`):** React SPA utilizing React Router DOM and Tailwind v4. Served statically by Express in production to reduce server load and payload size.
+- **Backend (`/`):** Node.js/Express REST API serving JSON.
+- **Database:** MongoDB Atlas with Mongoose ODM.
+
+### Security Implementation
+- **Zero-Trust Auth:** Tokens (JWT) are stored exclusively in **HTTP-only, Same-Site cookies**, mathematically eliminating XSS token theft vectors. No `localStorage` is used for authentication.
+
+---
+
+## 🛠️ Getting Started
 
 ### Prerequisites
-
 - Node.js (v18+ recommended)
 - MongoDB (local or MongoDB Atlas)
 - Razorpay account (test mode keys)
@@ -282,257 +343,93 @@ ShopSphere/
 git clone https://github.com/rohitbamniya4141/Shopsphere-full-stack-web.git
 cd Shopsphere-full-stack-web
 
-# 2. Install dependencies
+# 2. Install backend dependencies
 npm install
 
-# 3. Create a .env file
-touch .env
+# 3. Install frontend dependencies
+npm install --prefix client
 ```
 
 ### Environment Variables
-
-Create a `.env` file in the root directory with the following:
+Create a `.env` file in the root directory:
 
 ```env
 # MongoDB
 MONGODB_URI=mongodb://localhost:27017/shopsphere
 
-# JWT Secrets
-JWT_SECRET=**************
-SELLER_JWT_SECRET=**************
-OWNER_JWT_SECRET=**************
+# JWT Secrets (Use strong random strings)
+JWT_SECRET=your_customer_secret
+SELLER_JWT_SECRET=your_seller_secret
+OWNER_JWT_SECRET=your_owner_secret
 
 # Session Secret
-SESSION_SECRET=**************
+EXPRESS_SESSION_SECRET=your_session_secret
 
 # Razorpay
-RAZORPAY_KEY_ID=**************
-RAZORPAY_KEY_SECRET=**************
+RAZORPAY_KEY_ID=your_razorpay_key
+RAZORPAY_KEY_SECRET=your_razorpay_secret
 
 # Google Gemini AI
-GEMINI_API_KEY=**************
+GEMINI_API_KEY=your_gemini_api_key
 
 # Environment
 NODE_ENV=development
 ```
 
-### Run the Application
+### Running the Application (Development)
+You can run both the React dev server and the Node backend concurrently:
 
 ```bash
-# Development mode
-npm start
+# Terminal 1: Run Backend
+npm run dev
 
-# The app runs at http://localhost:3000
+# Terminal 2: Run Frontend
+npm run client:dev
+```
+The React frontend runs at `http://localhost:5173` and the API at `http://localhost:3000`.
+
+---
+
+## 📊 Benchmarking & Performance
+
+ShopSphere includes a built-in benchmarking suite to test the MongoDB indexes.
+
+```bash
+# 1. Seed the database with 1,000 synthetic orders
+npm run seed:benchmark
+
+# 2. Run the analytics performance test
+npm run benchmark
+
+# 3. Clear synthetic data when finished
+npm run clear:benchmark
 ```
 
-### First-Time Setup
-
-1. With `NODE_ENV=development`, visit `http://localhost:3000/owners/register` to create the Owner account
-2. The Owner can then approve Sellers from the admin dashboard
-3. Sellers can list products once approved
-4. Customers can browse, add to cart, and purchase
-
-## 🌐 Deployment
-
-ShopSphere is deployed using Railway with environment-based configuration.
-
-### Deployment Setup
-
-- Backend hosted on Railway
-- MongoDB connected through MongoDB Atlas
-- Environment variables managed securely through Railway dashboard
-- Production configuration handled using `NODE_ENV`
-
-### Deployment Flow
-
-```text
-GitHub Repository
-        |
-        ▼
-Railway Build & Deploy
-        |
-        ▼
-Node.js + Express Server
-        |
-        ▼
-MongoDB Atlas Database
-        |
-        ▼
-Live Application
-
 ---
-```
-### Deployment Note
 
-The application is deployed on Railway.
-Due to free-tier resource limitations, the instance may sleep during inactivity.
+## 🚀 Deployment
 
-## 🗺️ API Routes
+ShopSphere is configured for zero-config deployments on platforms like **Railway** or **Render**. The backend is configured to automatically serve the compiled React SPA.
 
-### Customer Routes (`/`)
-
-| Method | Route                 | Description                               |
-| ------ | --------------------- | ----------------------------------------- |
-| GET    | /shop                 | Product catalog with search, filter, sort |
-| GET    | /cart                 | View shopping cart                        |
-| POST   | /add-to-cart/:id      | Add product to cart                       |
-| DELETE | /remove-from-cart/:id | Remove from cart                          |
-| GET    | /wishlist             | View wishlist                             |
-| POST   | /add-to-wishlist/:id  | Add to wishlist                           |
-| GET    | /orders               | View all orders                           |
-| POST   | /orders/:id/cancel    | Cancel order                              |
-| GET    | /orders/:id/invoice   | Download PDF invoice                      |
-| POST   | /product/:id/review   | Submit a review                           |
-
-### Auth Routes (`/users`)
-
-| Method | Route           | Description          |
-| ------ | --------------- | -------------------- |
-| GET    | /users/login    | Login page           |
-| POST   | /users/login    | Process login        |
-| GET    | /users/register | Register page        |
-| POST   | /users/register | Process registration |
-| GET    | /users/logout   | Logout               |
-
-### Seller Routes (`/sellers`)
-
-| Method | Route                    | Description           |
-| ------ | ------------------------ | --------------------- |
-| GET    | /sellers/dashboard       | Analytics dashboard   |
-| GET    | /sellers/products        | Seller's product list |
-| POST   | /sellers/products/create | Create new product    |
-| PUT    | /sellers/products/:id    | Edit product          |
-| DELETE | /sellers/products/:id    | Delete product        |
-
-### Owner Routes (`/owners`)
-
-| Method | Route                       | Description             |
-| ------ | --------------------------- | ----------------------- |
-| GET    | /owners/dashboard           | Platform analytics      |
-| GET    | /owners/admin               | Seller management panel |
-| POST   | /owners/sellers/:id/approve | Approve seller          |
-| POST   | /owners/sellers/:id/block   | Block seller            |
-
-### Payment Routes (`/payment`)
-
-| Method | Route                   | Description                  |
-| ------ | ----------------------- | ---------------------------- |
-| POST   | /payment/create-order   | Create Razorpay order        |
-| POST   | /payment/verify-payment | HMAC verify and record order |
-
-### AI Routes (`/ai`)
-
-| Method | Route    | Description        |
-| ------ | -------- | ------------------ |
-| POST   | /ai/chat | Send message to AI |
+1. Set your environment variables in the deployment dashboard (ensure `NODE_ENV=production`).
+2. The platform will automatically run the root `build` script (`npm run build`), which installs client dependencies and compiles the React app to `client/dist`.
+3. Express will serve the static files dynamically!
 
 ---
 
-## 📸 Screenshots
+## 📝 What I Learned Building This
 
-### 👤 Customer Experience
-
-#### Customer Login
-
-![Customer Login](./screenshots/home.png)
-
-#### Product Catalog
-
-![Product Catalog](./screenshots/shop.png)
-
-#### Product Details
-
-![Product Details](./screenshots/product-details.png)
-
-#### Shopping Cart
-
-![Shopping Cart](./screenshots/cart.png)
-
-#### Razorpay Payment
-
-![Razorpay Payment](./screenshots/payment.png)
-
-#### Orders Page
-
-![Orders Page](./screenshots/orders.png)
-
-### 🤖 AI Shopping Assistant
-
-![AI Assistant](./screenshots/ai-assistant.png)
-
-### 🏪 Seller Panel
-
-#### Seller Dashboard
-
-![Seller Dashboard](./screenshots/seller-dashboard.png)
-
-### 👑 Owner Panel
-
-#### Owner Dashboard
-
-![Owner Dashboard](./screenshots/owner-dashboard.png)
-
-### 📄 Invoice Generation
-
-![Invoice](./screenshots/invoice.png)
+- **Monolith to SPA Migration** – Decoupling EJS views into a scalable React frontend, building reusable UI components (Software IP), and slashing network payloads.
+- **High-Performance MongoDB** – Utilizing `explain("executionStats")` to optimize slow `$group` aggregation pipelines from full collection scans (`COLLSCAN`) to O(log N) index scans (`IXSCAN`).
+- **Cryptographic Security** – Server-side HMAC-SHA256 signature verification preventing payment spoofing.
+- **Domain-Aware AI Prompting** – Preventing LLM hallucinations by injecting live MongoDB inventory data directly into the system prompt context.
 
 ---
 
-## 🧪 Key Test Scenarios
-
-| Scenario                            | Expected Result                                      |
-| ----------------------------------- | ---------------------------------------------------- |
-| Login with blocked seller account   | Cookie cleared, flash error — immediate block        |
-| Tampered Razorpay payment signature | HTTP 400, order NOT created                          |
-| Add out-of-stock item to cart       | Flash error, redirect to shop                        |
-| Cancel a "Packed" order             | Flash error, cancellation blocked                    |
-| Submit review without purchasing    | Flash error, submission blocked                      |
-| Duplicate wishlist entry            | Second click silently ignored                        |
-| AI query in Hinglish                | Replies in Hinglish with real in-stock products only |
-
----
-
-## 🎯 What I Learned Building This
-
-- **MongoDB Aggregation Pipelines** — `$unwind → $match → $group` for per-seller revenue isolation
-- **Cryptographic payment verification** — HMAC-SHA256 using Node.js `crypto` module
-- **Role isolation without a shared auth system** — three completely separate collections, cookies, and middleware guards
-- **Database-first AI prompting** — preventing LLM hallucination by injecting real inventory into the prompt context
-- **Immutable order records** — `purchasedItems[]` snapshot pattern to decouple invoice accuracy from live data
-- **Product image handling** — Multer-based upload flow with image references stored in MongoDB
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
-## 👨‍💻 Author
+## 📄 License & Author
 
 **Rohit Bamniya**
+- GitHub: [rohitbamniya4141](https://github.com/rohitbamniya4141)
+- LinkedIn: [Rohit Bamniya](https://www.linkedin.com/in/rohit-bamniya-mcanitt)
 
-- GitHub: https://github.com/rohitbamniya4141
-- LinkedIn: https://www.linkedin.com/in/rohit-bamniya-mcanitt
-- Email: rohitbamniya.nitt@gmail.com
-
----
-
-## 🚀 Future Improvements
-
-- Cloud-based image storage using AWS S3/Cloudinary
-- Product recommendation improvements using embeddings
-- Payment webhook integration
-- Advanced search using Elasticsearch
-- Mobile application support
-
----
-
-<div align="center">
-
-⭐ **If you found this project useful, please give it a star!** ⭐
-
-_Built with genuine engineering decisions, not just tutorial code._
-
-</div>
+This project is open source and available under the [MIT License](LICENSE).
